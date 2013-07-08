@@ -83,7 +83,7 @@ class Crawler
 		// initialisation de la session
 		$ch = curl_init();
 
-		$startTime = microtime(true);
+		
 		
 		/* Check if cURL is available */
 		if ($ch !== FALSE) {
@@ -94,25 +94,28 @@ class Crawler
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,false);
 	        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE); 
 	        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36 FirePHP/4Chrome"); 
-	        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15); 
+	        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30); 
 	        
 	        // exécution de la session
+	        $startTime = microtime(true);
 	        $this->data = curl_exec($ch);
 
 	        if ($this->data !== null && $this->data != '') {
 
+	        	$endTime = microtime(true);
+
 		        // fermeture des ressources
 		        curl_close($ch);
 
-	        	$endTime = microtime(true);
 	        	$this->variables['time'] = $endTime - $startTime;
 	        	return true;
 	        }
 	        else {
+		        $endTime = microtime(true);
+		        
 	        	// fermeture des ressources
 		        curl_close($ch);
 
-		        $endTime = microtime(true);
 	        	$this->variables['time'] = $endTime - $startTime;
 
 		        return false;
