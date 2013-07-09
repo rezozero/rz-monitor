@@ -133,10 +133,13 @@ class CLIOutput
 							}
 							break;
 						case 'time':
-							$value = sprintf('%.3f s', (float)$value);
+							$value = sprintf('%.3fs', (float)$value);
 							break;
 						case 'totalTime':
-							$value = sprintf('%.3f s', (float)$value);
+							$value = sprintf('%.3fs', (float)$value);
+							break;
+						case 'avg':
+							$value = sprintf('%.3fs', (float)$value);
 							break;
 						
 						default:

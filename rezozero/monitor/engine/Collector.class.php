@@ -38,6 +38,7 @@ class Collector
 				'successCount'=>_('Success'),
 				'failCount'=>_('Fail'),
 				'status'=>_('Status'),
+				'lastest'=>_('Latest crawl'),
 				'cms_version'=>_('CMS version')
 			)
 		);

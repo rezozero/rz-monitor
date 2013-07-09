@@ -45,13 +45,13 @@ class HTMLOutput
 <style type="text/css">
 	body {
 		font-family: Arial, Helvetica, sans-serif;
-		width: 990px;
 		font-size: 12px;
-		margin: 30px auto;
+		margin: 20px;
 	}
 	td {
 		padding: 5px 15px;
 		border-top:1px solid #CCC;
+		border-collapse: collapse;
 	}
 </style>
 <body>
@@ -87,7 +87,35 @@ class HTMLOutput
 			$this->content("\n<tr>");
 
 			krsort($crawler);
-			foreach ($crawler as $key => $value) {
+			foreach ($crawler as $key => $value) 
+			{
+				if ($ckey != 0) {
+					
+					switch ($key ) {
+						case 'status':
+							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
+								$value = _('Online');
+							}
+							else {
+								$value = _('Failed');
+							}
+							break;
+						case 'time':
+							$value = sprintf('%.3fs', (float)$value);
+							break;
+						case 'totalTime':
+							$value = sprintf('%.3fs', (float)$value);
+							break;
+						case 'avg':
+							$value = sprintf('%.3fs', (float)$value);
+							break;
+						
+						default:
+							# code...
+							break;
+					}
+				}
+
 				$this->content("\n\t<td class='".$key."'>".$value."</td>");
 			}
 			$this->content("\n</tr>");

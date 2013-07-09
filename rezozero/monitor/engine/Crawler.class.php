@@ -73,7 +73,7 @@ class Crawler
 		if ($this->data != '') 
 		{
 			$cmsVersion = array();
-			if( preg_match("/\<meta name\=\"generator\" content\=\"RZ\-CMS ([^\"]+)\"/", $this->data, $cmsVersion) > 0 ) {
+			if( preg_match("/\<meta name\=\"generator\" content\=\"([^\"]+)\"/", $this->data, $cmsVersion) > 0 ) {
 				$this->variables['cms_version'] = $cmsVersion[1];
 			}
 		}
