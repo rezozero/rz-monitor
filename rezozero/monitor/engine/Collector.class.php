@@ -25,13 +25,20 @@ class Collector
 	private $statuses;
 
 	public function __construct( $confURL )
-	{
+	{	
+		
 		$this->statuses = array(
 			0 => array(
 				'url'=>_('Website'),
-				'time'=>_('Loading time (s)'),
-				'cms_version'=>_('CMS version'),
+				'time'=>_('Time'),
+				'avg'=>_('AVG'),
+				'totalTime'=>_('Total'),
+				'crawlCount'=>_('Crawls'),
+				'code'=>_('Code'),
+				'successCount'=>_('Success'),
+				'failCount'=>_('Fail'),
 				'status'=>_('Status'),
+				'cms_version'=>_('CMS version')
 			)
 		);
 

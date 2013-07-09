@@ -19,6 +19,7 @@ namespace rezozero\monitor\view;
  */
 
 use rezozero\monitor\view;
+use rezozero\monitor\engine;
 
 class CLIOutput
 {
@@ -28,10 +29,16 @@ class CLIOutput
 	private $settings;
 
 	private static $columnWidth = array(
-		'url'=>65,
-		'time'=>20,
+		'url'=>60,
+		'time'=>8,
+		'avg'=>8,
+		'totalTime'=>8,
+		'crawlCount'=>5,
+		'successCount'=>5,
+		'code'=>5,
+		'failCount'=>5,
 		'status'=>6,
-		'cms_version'=>20
+		'cms_version'=>18
 	);
 	
 	function __construct()
@@ -108,6 +115,35 @@ class CLIOutput
 
 			foreach ($crawler as $key => $value) {
 
+				/*
+				 * If not in column width donot display
+				 */
+				if (!in_array($key, array_keys(static::$columnWidth))) {
+					continue;
+				}
+
+				if ($line > 2) {
+					switch ($key ) {
+						case 'status':
+							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
+								$value = _('Online');
+							}
+							else {
+								$value = _('Failed');
+							}
+							break;
+						case 'time':
+							$value = sprintf('%.3f s', (float)$value);
+							break;
+						case 'totalTime':
+							$value = sprintf('%.3f s', (float)$value);
+							break;
+						
+						default:
+							# code...
+							break;
+					}
+				}
 
 				$this->content("\033[".($line*1).";".($addedCol)."H".$colors->getColoredString($value, $linecolor, $bckcolor));
 				$addedCol += static::$columnWidth[$key];

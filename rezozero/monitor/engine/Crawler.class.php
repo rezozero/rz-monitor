@@ -19,12 +19,16 @@ namespace rezozero\monitor\engine;
  */
 
 class Crawler
-{
+{	
 	private $url;
 	private $data;
 	private $time;
 
 	private $variables;
+
+	const STATUS_ONLINE = 0;
+	const STATUS_FAILED = 1;
+	const HTTP_OK = 200;
 	
 	function __construct( $url )
 	{
@@ -36,13 +40,22 @@ class Crawler
 		$this->variables['time'] = "";
 
 		if ($this->download() === true) {
-			$this->variables['status'] = _('Online');
-			$this->parse();
+
+			if ((int)($this->variables['code']) != static::HTTP_OK) {
+				$this->notifyError();
+				$this->variables['status'] = static::STATUS_FAILED;
+			}
+			else {
+				$this->variables['status'] = static::STATUS_ONLINE;
+				$this->parse();
+			}
 		}
 		else {
 			$this->notifyError();
-			$this->variables['status'] = _('Fail');
+			$this->variables['status'] = static::STATUS_FAILED;
 		}
+
+		$this->persist();
 	}
 
 	public function parse()
@@ -97,17 +110,18 @@ class Crawler
 	        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30); 
 	        
 	        // exécution de la session
-	        $startTime = microtime(true);
 	        $this->data = curl_exec($ch);
 
 	        if ($this->data !== null && $this->data != '') {
 
-	        	$endTime = microtime(true);
+	        	$info = curl_getinfo($ch);
 
 		        // fermeture des ressources
 		        curl_close($ch);
 
-	        	$this->variables['time'] = $endTime - $startTime;
+	        	$this->variables['time'] = $info['starttransfer_time'];
+	        	$this->variables['code'] = $info['http_code'];
+
 	        	return true;
 	        }
 	        else {
@@ -130,14 +144,78 @@ class Crawler
 	{
 		global $CONF;
 
-		$to      = $CONF['mail'];
-	    $subject = 'Monitor rezo-zero';
-	    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
-	    $headers = 'From: monitor@rezo-zero.com' . "\r\n" .
-	    'Reply-To: contact@rezo-zero.com' . "\r\n" .
-	    'X-Mailer: PHP/' . phpversion();
+		/*
+		 * Check if previous crawl with failed too before sendin an email
+		 */
+		$file = BASE_FOLDER.'/data/persistedData.json';
+		if (file_exists($file)) 
+		{
+			$persisted = json_decode(file_get_contents($file), true);
 
-	    mail($to, $subject, $message, $headers);
+			if (isset($persisted[md5($this->url)]) && 
+				isset($persisted[md5($this->url)]['status']) && 
+				$persisted[md5($this->url)]['status'] == static::STATUS_FAILED) {
+				
+				# Prev status was failed so we send mail
+				$to      = $CONF['mail'];
+			    $subject = 'Monitor rezo-zero';
+			    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
+			    $headers = 'From: monitor@rezo-zero.com' . "\r\n" .
+			    'Reply-To: contact@rezo-zero.com' . "\r\n" .
+			    'X-Mailer: PHP/' . phpversion();
+
+			    mail($to, $subject, $message, $headers);
+			}
+		}
+
+	}
+
+	public function persist()
+	{
+		$file = BASE_FOLDER.'/data/persistedData.json';
+
+		$persisted = array();
+
+		if (file_exists($file)) {
+			$persisted = json_decode(file_get_contents($file), true);
+		}
+
+		if (isset($persisted[md5($this->url)]))  {
+			if (isset($persisted[md5($this->url)]['crawlCount'])) {
+				$persisted[md5($this->url)]['crawlCount']++;
+			}
+			else {
+				$persisted[md5($this->url)]['crawlCount'] = 1;
+			}
+
+			$persisted[md5($this->url)]['totalTime'] += 	$this->variables['time'];
+		}
+		else {
+			$persisted[md5($this->url)] = $this->variables;
+			$persisted[md5($this->url)]['totalTime'] = $this->time;
+			$persisted[md5($this->url)]['crawlCount'] = 1;
+			$persisted[md5($this->url)]['successCount'] = 0;
+			$persisted[md5($this->url)]['failCount'] = 0;
+		}
+
+		if ($this->variables['status'] == static::STATUS_ONLINE) {
+			$persisted[md5($this->url)]['successCount']++;
+		}
+		else {
+			$persisted[md5($this->url)]['failCount']++;
+		}
+
+		$persisted[md5($this->url)]['time'] = 			$this->variables['time'];
+		$persisted[md5($this->url)]['status'] = 		$this->variables['status'];
+		$persisted[md5($this->url)]['cms_version'] = 	$this->variables['cms_version'];
+		$persisted[md5($this->url)]['code'] = 			$this->variables['code'];
+		$persisted[md5($this->url)]['lastest'] = 		date('Y-m-d H:i:s');
+		$persisted[md5($this->url)]['avg'] = 			$persisted[md5($this->url)]['totalTime'] / 
+												$persisted[md5($this->url)]['crawlCount'];
+
+		$this->variables = $persisted[md5($this->url)];
+
+		file_put_contents($file, json_encode($persisted, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 	}
 }
 
