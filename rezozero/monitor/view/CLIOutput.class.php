@@ -43,6 +43,8 @@ class CLIOutput
 	
 	function __construct()
 	{
+		system("clear");
+
 		$this->header();
 		$this->footer();
 
@@ -52,12 +54,10 @@ class CLIOutput
 		$this->settings['screen']['width'] = exec('tput cols');
 		$this->settings['screen']['height'] = exec('tput lines');
 
-		system("clear");
 	}
 
 	public function header()
 	{
-
 		$colors = new Colors();
 
 		ob_start();
@@ -162,7 +162,13 @@ class CLIOutput
 
 	public function output()
 	{
-		return $this->header.$this->content.$this->footer."\n\n";
+		return $this->header().$this->content.$this->footer()."\n\n";
+	}
+
+	public function flushContent()
+	{
+		$this->content = '';
+		return true;
 	}
 
 	public static function echoAT($Row,$Col,$prompt="") { 

@@ -111,10 +111,10 @@ class Crawler
 	        
 	        // exécution de la session
 	        $this->data = curl_exec($ch);
+	        $info = curl_getinfo($ch);
 
 	        if ($this->data !== null && $this->data != '') {
 
-	        	$info = curl_getinfo($ch);
 
 		        // fermeture des ressources
 		        curl_close($ch);
@@ -125,12 +125,10 @@ class Crawler
 	        	return true;
 	        }
 	        else {
-		        $endTime = microtime(true);
 		        
 	        	// fermeture des ressources
 		        curl_close($ch);
-
-	        	$this->variables['time'] = $endTime - $startTime;
+	        	$this->variables['time'] = $info['starttransfer_time'];
 
 		        return false;
 	        }
@@ -188,7 +186,9 @@ class Crawler
 				$persisted[md5($this->url)]['crawlCount'] = 1;
 			}
 
-			$persisted[md5($this->url)]['totalTime'] += 	$this->variables['time'];
+			if (is_float($this->variables['time'])) {
+				$persisted[md5($this->url)]['totalTime'] += 	$this->variables['time'];
+			}
 		}
 		else {
 			$persisted[md5($this->url)] = $this->variables;
@@ -205,13 +205,23 @@ class Crawler
 			$persisted[md5($this->url)]['failCount']++;
 		}
 
-		$persisted[md5($this->url)]['time'] = 			$this->variables['time'];
+		if (is_float($this->variables['time'])) {
+			$persisted[md5($this->url)]['time'] = 			$this->variables['time'];
+		}
+		else {
+			$persisted[md5($this->url)]['time'] = 			null;
+		}
 		$persisted[md5($this->url)]['status'] = 		$this->variables['status'];
 		$persisted[md5($this->url)]['cms_version'] = 	$this->variables['cms_version'];
 		$persisted[md5($this->url)]['code'] = 			$this->variables['code'];
 		$persisted[md5($this->url)]['lastest'] = 		date('Y-m-d H:i:s');
-		$persisted[md5($this->url)]['avg'] = 			$persisted[md5($this->url)]['totalTime'] / 
-												$persisted[md5($this->url)]['crawlCount'];
+
+		if ($persisted[md5($this->url)]['successCount'] > 0 && 
+			$persisted[md5($this->url)]['totalTime'] > 0) 
+		{
+			$persisted[md5($this->url)]['avg'] = $persisted[md5($this->url)]['totalTime'] / 
+													$persisted[md5($this->url)]['successCount'];
+		}
 
 		$this->variables = $persisted[md5($this->url)];
 

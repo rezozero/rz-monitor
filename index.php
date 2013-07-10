@@ -17,7 +17,6 @@
  */
 
 define('BASE_FOLDER', dirname(__FILE__));
-
 include_once(BASE_FOLDER.'/autoload.php');
 
 /*
@@ -29,14 +28,26 @@ $CONF = json_decode($confFile, true);
 
 if(defined('STDIN') ) {
 
+	$output = new \rezozero\monitor\view\CLIOutput();
+	$colors = new \rezozero\monitor\view\Colors();
+
+	\rezozero\monitor\view\CLIOutput::echoAT(0,0,
+		$colors->getColoredString('Please wait for RZ Monitor to crawl your websites', 'white', 'black'));
+
 	while (true) {
 		# infinite loop
 		$collector = new \rezozero\monitor\engine\Collector('sites.json');
 
-		$output = new \rezozero\monitor\view\CLIOutput();
 		$output->parseArray($collector->getStatuses());
+		system("clear");
 		echo $output->output();
-		  
+
+		$output->flushContent();
+
+		printf(_('Next crawl in %d seconds')."\n\r", (int)$CONF['delay']);
+		
+		unset($collector);
+
 		sleep((int)$CONF['delay']);
 	}
 }
