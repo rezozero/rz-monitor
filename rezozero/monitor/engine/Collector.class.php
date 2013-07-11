@@ -52,9 +52,11 @@ class Collector
 			//var_dump($this->urls);
 
 			if ($this->urls !== null && is_array($this->urls)) {
-				foreach ($this->urls as $key => $value) {
+				foreach ($this->urls as $key => $value) 
+				{
 					$parser = new \rezozero\monitor\engine\Crawler( $value );
 					$this->statuses[] = $parser->getVariables();
+					unset($parser);
 				}
 			}
 		}

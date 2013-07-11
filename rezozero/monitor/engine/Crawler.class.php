@@ -28,6 +28,7 @@ class Crawler
 
 	const STATUS_ONLINE = 0;
 	const STATUS_FAILED = 1;
+	const STATUS_DOWN = 2;
 	const HTTP_OK = 200;
 	
 	function __construct( $url )
@@ -42,17 +43,18 @@ class Crawler
 		if ($this->download() === true) {
 
 			if ((int)($this->variables['code']) != static::HTTP_OK) {
-				$this->notifyError();
 				$this->variables['status'] = static::STATUS_FAILED;
+				$this->notifyError();
 			}
 			else {
 				$this->variables['status'] = static::STATUS_ONLINE;
+				$this->notifyUp();
 				$this->parse();
 			}
 		}
 		else {
-			$this->notifyError();
 			$this->variables['status'] = static::STATUS_FAILED;
+			$this->notifyError();
 		}
 
 		$this->persist();
@@ -152,6 +154,7 @@ class Crawler
 
 			if (isset($persisted[md5($this->url)]) && 
 				isset($persisted[md5($this->url)]['status']) && 
+				$this->variables['status'] == static::STATUS_FAILED &&
 				$persisted[md5($this->url)]['status'] == static::STATUS_FAILED) {
 				
 				# Prev status was failed so we send mail
@@ -163,9 +166,45 @@ class Crawler
 			    'X-Mailer: PHP/' . phpversion();
 
 			    mail($to, $subject, $message, $headers);
+
+
+			    /*
+			     * Tag this site as DOWN when notification sent
+			     */
+			    $persisted[md5($this->url)]['status'] == static::STATUS_DOWN;
+			    $this->variables['status'] = static::STATUS_DOWN;
 			}
 		}
+	}
 
+	public function notifyUp()
+	{
+		global $CONF;
+
+		/*
+		 * Check if previous crawl with failed too before sendin an email
+		 */
+		$file = BASE_FOLDER.'/data/persistedData.json';
+		if (file_exists($file)) 
+		{
+			$persisted = json_decode(file_get_contents($file), true);
+
+			if (isset($persisted[md5($this->url)]) && 
+				isset($persisted[md5($this->url)]['status']) && 
+			    $this->variables['status'] == static::STATUS_ONLINE && 
+				$persisted[md5($this->url)]['status'] == static::STATUS_DOWN) {
+				
+				# Prev status was down so we send mail when the site is up again
+				$to      = $CONF['mail'];
+			    $subject = 'Monitor rezo-zero';
+			    $message = 'URL : '.$this->url.' is now online at '.date('Y-m-d H:i:s');
+			    $headers = 'From: monitor@rezo-zero.com' . "\r\n" .
+			    'Reply-To: contact@rezo-zero.com' . "\r\n" .
+			    'X-Mailer: PHP/' . phpversion();
+
+			    mail($to, $subject, $message, $headers);
+			}
+		}
 	}
 
 	public function persist()
@@ -206,15 +245,15 @@ class Crawler
 		}
 
 		if (is_float($this->variables['time'])) {
-			$persisted[md5($this->url)]['time'] = 			$this->variables['time'];
+			$persisted[md5($this->url)]['time'] = (float)$this->variables['time'];
 		}
 		else {
-			$persisted[md5($this->url)]['time'] = 			null;
+			$persisted[md5($this->url)]['time'] = null;
 		}
-		$persisted[md5($this->url)]['status'] = 		$this->variables['status'];
-		$persisted[md5($this->url)]['cms_version'] = 	$this->variables['cms_version'];
-		$persisted[md5($this->url)]['code'] = 			$this->variables['code'];
-		$persisted[md5($this->url)]['lastest'] = 		date('Y-m-d H:i:s');
+		$persisted[md5($this->url)]['status'] = (int) $this->variables['status'];
+		$persisted[md5($this->url)]['cms_version'] = $this->variables['cms_version'];
+		$persisted[md5($this->url)]['code'] = $this->variables['code'];
+		$persisted[md5($this->url)]['lastest'] = date('Y-m-d H:i:s');
 
 		if ($persisted[md5($this->url)]['successCount'] > 0 && 
 			$persisted[md5($this->url)]['totalTime'] > 0) 

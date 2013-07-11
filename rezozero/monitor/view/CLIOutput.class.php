@@ -95,11 +95,15 @@ class CLIOutput
 			$linecolor = 'green';
 			$bckcolor = null;
 
+			if ($line > 2 && $line%2 == 0) {
+				$linecolor = 'light_green';
+			}
+
 			if ($line == 2) {
 				$linecolor = 'white';
 				$bckcolor = 'green';
 			}
-			else if ($crawler['status'] != 'Online') {
+			else if ($crawler['status'] != \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
 				$bckcolor = 'red';
 				$linecolor = 'white';
 			}
@@ -108,9 +112,6 @@ class CLIOutput
 				$linecolor = 'black';
 			}
 
-			if ($line > 2 && $line%2 == 0) {
-				$linecolor = 'light_green';
-			}
 
 
 			foreach ($crawler as $key => $value) {
@@ -127,6 +128,9 @@ class CLIOutput
 						case 'status':
 							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
 								$value = _('Online');
+							}
+							else if ($value == \rezozero\monitor\engine\Crawler::STATUS_DOWN) {
+								$value = _('Down');
 							}
 							else {
 								$value = _('Failed');
