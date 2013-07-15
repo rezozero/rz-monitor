@@ -89,12 +89,15 @@ class HTMLOutput
 			krsort($crawler);
 			foreach ($crawler as $key => $value) 
 			{
-				if ($ckey != 0) {
+				if ($ckey > 0) {
 					
 					switch ($key ) {
 						case 'status':
 							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
 								$value = _('Online');
+							}
+							else if ($value == \rezozero\monitor\engine\Crawler::STATUS_DOWN) {
+								$value = _('Down');
 							}
 							else {
 								$value = _('Failed');
@@ -106,17 +109,33 @@ class HTMLOutput
 						case 'totalTime':
 							$value = sprintf('%.3fs', (float)$value);
 							break;
+						case 'connect_time':
+							$value = sprintf('%.3fs', (float)$value);
+							break;
 						case 'avg':
 							$value = sprintf('%.3fs', (float)$value);
+							break;
+						case 'url':
+							$value = str_replace("http://", "", $value);
+							$value = str_replace("www.", "", $value);
+							$value = str_replace(".com", "", $value);
+							$value = str_replace(".net", "", $value);
+							$value = str_replace(".org", "", $value);
+							$value = str_replace(".eu", "", $value);
+							$value = str_replace(".fr", "", $value);
 							break;
 						
 						default:
 							# code...
 							break;
 					}
+
+					$this->content("\n\t<td class='".$key."'>".$value."</td>");
+				}
+				else {
+					$this->content("\n\t<th class='".$key."'>".$value."</th>");
 				}
 
-				$this->content("\n\t<td class='".$key."'>".$value."</td>");
 			}
 			$this->content("\n</tr>");
 		}

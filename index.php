@@ -15,6 +15,11 @@
  * @copyright REZO ZERO 2013
  * @author Ambroise Maupate
  */
+use \rezozero\monitor\view;
+use \rezozero\monitor\kernel\Router;
+use \rezozero\monitor\engine\Collector;
+use \rezozero\monitor\view\CLIOutput;
+
 
 define('BASE_FOLDER', dirname(__FILE__));
 include_once(BASE_FOLDER.'/autoload.php');
@@ -25,18 +30,22 @@ include_once(BASE_FOLDER.'/autoload.php');
 $confFile = file_get_contents(BASE_FOLDER.'/conf/conf.json');
 $CONF = json_decode($confFile, true);
 
+$tokens = Router::parseQueryString();
 
+/*
+ * Command line utility with infinite crawl loop
+ */
 if(defined('STDIN') ) {
 
-	$output = new \rezozero\monitor\view\CLIOutput();
-	$colors = new \rezozero\monitor\view\Colors();
+	$output = new view\CLIOutput();
+	$colors = new view\Colors();
 
-	\rezozero\monitor\view\CLIOutput::echoAT(0,0,
+	CLIOutput::echoAT(0,0,
 		$colors->getColoredString('Please wait for RZ Monitor to crawl your websites', 'white', 'black'));
 
 	while (true) {
 		# infinite loop
-		$collector = new \rezozero\monitor\engine\Collector('sites.json');
+		$collector = new Collector('sites.json');
 
 		$output->parseArray($collector->getStatuses());
 		system("clear");
@@ -51,14 +60,31 @@ if(defined('STDIN') ) {
 		sleep((int)$CONF['delay']);
 	}
 }
+/*
+ * Simple table view for Panic StatusBoard™ iOS app
+ *
+ * Just call yourdomain.com/table
+ */
+else if (isset($tokens[0]) && $tokens[0] == 'table') {
+	$collector = new Collector('sites.json');
+	$output = new view\TableOutput();
+	$output->parseArray($collector->getStatuses());
+	echo $output->output();
+	  
+	exit();
+}
+/*
+ * HTML view for internet browsers
+ */
 else {
-	$collector = new \rezozero\monitor\engine\Collector('sites.json');
-	$output = new \rezozero\monitor\view\HTMLOutput();
+	$collector = new Collector('sites.json');
+	$output = new view\HTMLOutput();
 	$output->parseArray($collector->getStatuses());
 	echo $output->output();
 	  
 
 	exit();
 }
+
 
 ?>

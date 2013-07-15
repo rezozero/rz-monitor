@@ -26,10 +26,15 @@ class Crawler
 
 	private $variables;
 
+	private $curlHandle;
+
 	const STATUS_ONLINE = 0;
 	const STATUS_FAILED = 1;
 	const STATUS_DOWN = 2;
+
 	const HTTP_OK = 200;
+	const HTTP_REDIRECT = 300;
+	const HTTP_PERMANENT_REDIRECT = 301;
 	
 	function __construct( $url )
 	{
@@ -40,45 +45,38 @@ class Crawler
 		$this->variables['cms_version'] = "";
 		$this->variables['time'] = "";
 
-		if ($this->download() === true) {
+		$this->initRequest();
+	}
 
-			if ((int)($this->variables['code']) != static::HTTP_OK) {
-				$this->variables['status'] = static::STATUS_FAILED;
-				$this->notifyError();
-			}
-			else {
-				$this->variables['status'] = static::STATUS_ONLINE;
-				$this->notifyUp();
-				$this->parse();
-			}
-		}
-		else {
+	/**
+	 * Parse downloaded data to find HTTP Code and Meta generator
+	 * @return void
+	 */
+	public function parse()
+	{	
+		$this->getInfos();
+
+		if ((int)($this->variables['code']) != static::HTTP_OK && 
+			(int)($this->variables['code']) != static::HTTP_REDIRECT && 
+			(int)($this->variables['code']) != static::HTTP_PERMANENT_REDIRECT ) 
+		{
 			$this->variables['status'] = static::STATUS_FAILED;
 			$this->notifyError();
 		}
+		else {
+			$this->variables['status'] = static::STATUS_ONLINE;
+			$this->notifyUp();
 
-		$this->persist();
-	}
-
-	public function parse()
-	{
-		/*
-		 * var myRegex = /name\=\"generator\" content\=\"RZ\-CMS ([^"]+)\"/;
-			var result = myRegex.exec(data);
-
-			var end = new Date().getTime();
-			var time = end - start;
-
-			<meta name="generator" content="RZ-CMS R1-20130115-master" />
-		 */
-
-		if ($this->data != '') 
-		{
-			$cmsVersion = array();
-			if( preg_match("/\<meta name\=\"generator\" content\=\"([^\"]+)\"/", $this->data, $cmsVersion) > 0 ) {
-				$this->variables['cms_version'] = $cmsVersion[1];
+			if ($this->data != '') 
+			{
+				$cmsVersion = array();
+				if( preg_match("/\<meta name\=\"generator\" content\=\"([^\"]+)\"/", $this->data, $cmsVersion) > 0 ) {
+					$this->variables['cms_version'] = $cmsVersion[1];
+				}
 			}
-		}
+		}	
+
+		$this->persist();	
 	}
 
 	public function getVariables()
@@ -86,6 +84,11 @@ class Crawler
 		return $this->variables;
 	}
 
+	/**
+	 * Once piece download method
+	 * 
+	 * @return [type] [description]
+	 */
 	public function download()
 	{
 		/* --------------------
@@ -96,30 +99,30 @@ class Crawler
 		}
 
 		// initialisation de la session
-		$ch = curl_init();
+		$this->curlHandle = curl_init();
 
 		
 		
 		/* Check if cURL is available */
-		if ($ch !== FALSE) {
+		if ($this->curlHandle !== FALSE) {
 	        // configuration des options
-	        curl_setopt($ch, CURLOPT_URL, $this->url);
-	        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,false);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,false);
-	        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE); 
-	        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36 FirePHP/4Chrome"); 
-	        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30); 
+	        curl_setopt($this->curlHandle, CURLOPT_URL, $this->url);
+	        curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);/*
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST,false);
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER,false); */
+	        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, TRUE);
+	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36 FirePHP/4Chrome"); 
+	        curl_setopt($this->curlHandle, CURLOPT_CONNECTTIMEOUT, 30); 
 	        
 	        // exécution de la session
-	        $this->data = curl_exec($ch);
-	        $info = curl_getinfo($ch);
+	        $this->data = curl_exec($this->curlHandle);
+	        $info = curl_getinfo($this->curlHandle);
 
 	        if ($this->data !== null && $this->data != '') {
 
 
 		        // fermeture des ressources
-		        curl_close($ch);
+		        curl_close($this->curlHandle);
 
 	        	$this->variables['time'] = $info['starttransfer_time'];
 	        	$this->variables['code'] = $info['http_code'];
@@ -138,6 +141,80 @@ class Crawler
 		else {
 			return false;
 		}
+	}
+
+	public function initRequest()
+	{
+		// initialisation de la session
+		$this->curlHandle = curl_init();
+
+		/* Check if cURL is available */
+		if ($this->curlHandle !== FALSE) {
+	        // configuration des options
+	        curl_setopt($this->curlHandle, CURLOPT_URL, $this->url);
+	        curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);/*
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST,false);
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER,false);
+	        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, TRUE); */
+	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36 FirePHP/4Chrome"); 
+	        curl_setopt($this->curlHandle, CURLOPT_CONNECTTIMEOUT, 30); 
+	        
+	        return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * Get infos from curl handler
+	 * @return [type] [description]
+	 */
+	public function getInfos()
+	{
+		$this->data = curl_multi_getcontent($this->curlHandle);
+		$info = curl_getinfo($this->curlHandle);
+
+		if (isset($info['http_code'])) {
+	   		$this->variables['code'] = $info['http_code'];
+		}
+		if (isset($info['starttransfer_time'])) {
+	   		$this->variables['time'] = $info['starttransfer_time'];
+		}
+		if (isset($info['connect_time'])) {
+	   		$this->variables['connect_time'] = $info['connect_time'];
+		}
+		if (isset($info['effective_url'])) {
+	   		$this->variables['effective_url'] = $info['effective_url'];
+		}
+		return $info;
+	}
+	/**
+	 * Pass data to the crawler
+	 * @param [type] $data [description]
+	 */
+	public function setRequestedData( $data )
+	{
+		$this->data = $data;
+	}
+
+
+	/**
+	 * Close curl handler
+	 * @return [type] [description]
+	 */
+	public function closeRequest()
+	{
+		curl_close($this->curlHandle);
+	}
+
+	/**
+	 * Return current crawler curl handler
+	 * @return [type] [description]
+	 */
+	public function &getCurlHandle()
+	{
+		return $this->curlHandle;
 	}
 
 	public function notifyError()
@@ -250,7 +327,14 @@ class Crawler
 		else {
 			$persisted[md5($this->url)]['time'] = null;
 		}
+		if (is_float($this->variables['connect_time'])) {
+			$persisted[md5($this->url)]['connect_time'] = (float)$this->variables['connect_time'];
+		}
+		else {
+			$persisted[md5($this->url)]['time'] = null;
+		}
 		$persisted[md5($this->url)]['status'] = (int) $this->variables['status'];
+		$persisted[md5($this->url)]['effective_url'] = $this->variables['effective_url'];
 		$persisted[md5($this->url)]['cms_version'] = $this->variables['cms_version'];
 		$persisted[md5($this->url)]['code'] = $this->variables['code'];
 		$persisted[md5($this->url)]['lastest'] = date('Y-m-d H:i:s');

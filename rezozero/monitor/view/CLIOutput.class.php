@@ -32,7 +32,7 @@ class CLIOutput
 		'url'=>60,
 		'time'=>8,
 		'avg'=>8,
-		'totalTime'=>8,
+		// 'totalTime'=>8,
 		'crawlCount'=>5,
 		'successCount'=>5,
 		'code'=>5,
@@ -124,7 +124,7 @@ class CLIOutput
 				}
 
 				if ($line > 2) {
-					switch ($key ) {
+					switch (strtolower($key)) {
 						case 'status':
 							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
 								$value = _('Online');
@@ -144,6 +144,15 @@ class CLIOutput
 							break;
 						case 'avg':
 							$value = sprintf('%.3fs', (float)$value);
+							break;
+						case 'url':
+							$value = str_replace("http://", "", $value);
+							$value = str_replace("www.", "", $value);
+							$value = str_replace(".com", "", $value);
+							$value = str_replace(".net", "", $value);
+							$value = str_replace(".org", "", $value);
+							$value = str_replace(".eu", "", $value);
+							$value = str_replace(".fr", "", $value);
 							break;
 						
 						default:
