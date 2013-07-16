@@ -1,4 +1,7 @@
 {
 	"mail":"your@email.here",
-	"delay":30
+	"delay":30/*,
+	"users": {
+		"username": "password"
+	}*/
 }

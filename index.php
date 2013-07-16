@@ -16,6 +16,7 @@
  * @author Ambroise Maupate
  */
 use \rezozero\monitor\view;
+use \rezozero\monitor\kernel\CLIMonitor;
 use \rezozero\monitor\kernel\Router;
 use \rezozero\monitor\engine\Collector;
 use \rezozero\monitor\view\CLIOutput;
@@ -30,61 +31,50 @@ include_once(BASE_FOLDER.'/autoload.php');
 $confFile = file_get_contents(BASE_FOLDER.'/conf/conf.json');
 $CONF = json_decode($confFile, true);
 
-$tokens = Router::parseQueryString();
-
 /*
  * Command line utility with infinite crawl loop
  */
 if(defined('STDIN') ) {
+	new CLIMonitor( $CONF );
+}
+/*
+ * Need auth for HTTP requests
+ */
+else if (Router::authentificate( $CONF ) === true) {
 
-	$output = new view\CLIOutput();
-	$colors = new view\Colors();
+	$tokens = Router::parseQueryString();
 
-	CLIOutput::echoAT(0,0,
-		$colors->getColoredString('Please wait for RZ Monitor to crawl your websites', 'white', 'black'));
-
-	while (true) {
-		# infinite loop
+	/*
+	 * Simple table view for Panic StatusBoard™ iOS app
+	 *
+	 * Just call yourdomain.com/table
+	 */
+	if (isset($tokens[0]) && $tokens[0] == 'table') {
 		$collector = new Collector('sites.json');
-
+		$output = new view\TableOutput();
 		$output->parseArray($collector->getStatuses());
-		system("clear");
 		echo $output->output();
+		  
+		exit();
+	}
+	/*
+	 * HTML view for internet browsers
+	 */
+	else {
+		$collector = new Collector('sites.json');
+		$output = new view\HTMLOutput();
+		$output->parseArray($collector->getStatuses());
+		echo $output->output();
+		  
 
-		$output->flushContent();
-
-		printf(_('Next crawl in %d seconds')."\n\r", (int)$CONF['delay']);
-		
-		unset($collector);
-
-		sleep((int)$CONF['delay']);
+		exit();
 	}
 }
-/*
- * Simple table view for Panic StatusBoard™ iOS app
- *
- * Just call yourdomain.com/table
- */
-else if (isset($tokens[0]) && $tokens[0] == 'table') {
-	$collector = new Collector('sites.json');
-	$output = new view\TableOutput();
-	$output->parseArray($collector->getStatuses());
-	echo $output->output();
-	  
-	exit();
-}
-/*
- * HTML view for internet browsers
- */
 else {
-	$collector = new Collector('sites.json');
-	$output = new view\HTMLOutput();
-	$output->parseArray($collector->getStatuses());
-	echo $output->output();
-	  
-
+	header('HTTP/1.0 403 Forbidden');
 	exit();
 }
+
 
 
 ?>
