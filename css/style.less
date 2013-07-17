@@ -1,0 +1,133 @@
+@bg-color: #EEE;
+
+body {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	margin: 50px auto;
+	width: 990px;
+	position: relative;
+	background-color: @bg-color;
+}
+
+h1 {
+	color: lighten(@bg-color, 00%);
+	font-weight: lighter;
+	font-size: 40px;
+	margin-bottom: 0px;
+	padding: 10px 15px;
+
+	display: inline-block;
+	background-color: darken(@bg-color, 20%);
+}
+
+table {
+
+	width: 100%;
+	border: none;
+	border-collapse: collapse;
+
+	.box-shadow(0px, 40px, 50px, rgba(0,0,0,0.15));
+
+	th, td {
+		padding: 5px 15px;
+		border: none;
+		border-top:1px solid #CCC;
+		border-collapse: collapse;
+		background-color: @bg-color;
+		text-align: left;
+
+		.cell-colors();
+
+		&.status {
+			width: 20px;
+		}
+	}
+
+	th {
+		background-color: darken(@bg-color, 20%);
+	}
+
+	tr:nth-child(even) {
+		td {
+			background-color: #FFF;
+			.cell-colors();
+		}
+	}
+
+	tr:hover {
+		td {
+			background-color: darken(@bg-color, 10%);
+			.cell-colors();
+		}
+	}
+}
+
+
+.cell-colors(){
+	&.online {
+		&:after{
+			content: '.';
+			display: block;
+			width: 16px;
+			height: 16px;
+			padding: 0;
+			margin: 0 auto;
+			background-image: url('../img/iconOnline.png');
+			background-size: 16px 16px;
+			position: absolute;
+			top: 4px;
+			left: 15px;
+		}
+		position: relative;
+		text-indent: -9999px;
+	}
+	&.failed {
+		&:after{
+			content: '.';
+			display: block;
+			width: 16px;
+			height: 16px;
+			padding: 0;
+			margin: 0 auto;
+			background-image: url('../img/iconFailed.png');
+			background-size: 16px 16px;
+			position: absolute;
+			top: 4px;
+			left: 15px;
+		}
+		position: relative;
+		text-indent: -9999px;
+	}
+	&.down {
+		&:after{
+			content: '.';
+			display: block;
+			width: 16px;
+			height: 16px;
+			padding: 0;
+			margin: 0 auto;
+			background-image: url('../img/iconDown.png');
+			background-size: 16px 16px;
+			position: absolute;
+			top: 4px;
+			left: 15px;
+		}
+		position: relative;
+
+		text-indent: -9999px;
+	}
+}
+.box-shadow(@x, @y, @width, @color) {
+	-webkit-box-shadow:		@x @y @width @color;
+	-moz-box-shadow:		@x @y @width @color;
+	-o-box-shadow:			@x @y @width @color;
+	-ms-box-shadow:			@x @y @width @color;
+	box-shadow:				@x @y @width @color;
+}
+.border-radius( @radius ) {
+	border-radius: 			@radius;
+	-webkit-border-radius: 	@radius;
+	-moz-border-radius: 	@radius;
+	-o-border-radius: 		@radius;
+	-ms-border-radius: 		@radius;
+}

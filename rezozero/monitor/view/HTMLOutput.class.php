@@ -24,6 +24,19 @@ class HTMLOutput
 	private $header = "";
 	private $footer = "";
 	private $content = "";
+
+	private static $columnWidth = array(
+		'url'=>60,
+		'time'=>8,
+		'avg'=>8,
+		// 'totalTime'=>8,
+		'crawlCount'=>5,
+		'successCount'=>5,
+		'code'=>5,
+		'failCount'=>5,
+		'status'=>6,
+		'cms_version'=>18
+	);
 	
 	function __construct()
 	{
@@ -39,21 +52,9 @@ class HTMLOutput
 <html>
 <head>
 	<title>RZ Monitor</title>
-
+	<link rel="stylesheet" href="./css/style.css" type="text/css" />
 	<script type="text/javascript" src="./js/jquery-1.10.1.min.js"></script>
 </head>
-<style type="text/css">
-	body {
-		font-family: Arial, Helvetica, sans-serif;
-		font-size: 12px;
-		margin: 20px;
-	}
-	td {
-		padding: 5px 15px;
-		border-top:1px solid #CCC;
-		border-collapse: collapse;
-	}
-</style>
 <body>
 	<h1>RZ Monitor</h1>
 		<?php
@@ -89,18 +90,29 @@ class HTMLOutput
 			krsort($crawler);
 			foreach ($crawler as $key => $value) 
 			{
+				/*
+				 * If not in column width donot display
+				 */
+				if (!in_array($key, array_keys(static::$columnWidth))) {
+					continue;
+				}
 				if ($ckey > 0) {
+
+					$additionalClass='';
 					
 					switch ($key ) {
 						case 'status':
 							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
 								$value = _('Online');
+								$additionalClass = " online";
 							}
 							else if ($value == \rezozero\monitor\engine\Crawler::STATUS_DOWN) {
 								$value = _('Down');
+								$additionalClass = " down";
 							}
 							else {
 								$value = _('Failed');
+								$additionalClass = " failed";
 							}
 							break;
 						case 'time':
@@ -130,7 +142,7 @@ class HTMLOutput
 							break;
 					}
 
-					$this->content("\n\t<td class='".$key."'>".$value."</td>");
+					$this->content("\n\t<td class='".$key.$additionalClass."'>".$value."</td>");
 				}
 				else {
 					$this->content("\n\t<th class='".$key."'>".$value."</th>");

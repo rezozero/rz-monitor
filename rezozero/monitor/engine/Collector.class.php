@@ -85,7 +85,7 @@ class Collector
 		 * execute requests
 		 */
 		do {
-			//usleep(10);
+			usleep(10);
 			curl_multi_exec($this->multiHandle, $running);
 		} while ($running > 0);
 	}
@@ -98,6 +98,7 @@ class Collector
 		
 			curl_multi_remove_handle($this->multiHandle, $parser->getCurlHandle());
 
+			$this->parsers[$key] = null;
 			unset($this->parsers[$key]);
 		}
 
