@@ -220,8 +220,7 @@ class Crawler
 				$to      = $CONF['mail'];
 			    $subject = 'Monitor rezo-zero';
 			    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
-			    $headers = 'From: monitor@rezo-zero.com' . "\r\n" .
-			    'Reply-To: contact@rezo-zero.com' . "\r\n" .
+			    $headers = 'From: '.$CONF['mail']. "\r\n" .
 			    'X-Mailer: PHP/' . phpversion();
 
 			    mail($to, $subject, $message, $headers);
@@ -230,7 +229,6 @@ class Crawler
 			    /*
 			     * Tag this site as DOWN when notification sent
 			     */
-			    $persisted[md5($this->url)]['status'] == static::STATUS_DOWN;
 			    $this->variables['status'] = static::STATUS_DOWN;
 			}
 		}
@@ -257,8 +255,7 @@ class Crawler
 				$to      = $CONF['mail'];
 			    $subject = 'Monitor rezo-zero';
 			    $message = 'URL : '.$this->url.' is now online at '.date('Y-m-d H:i:s');
-			    $headers = 'From: monitor@rezo-zero.com' . "\r\n" .
-			    'Reply-To: contact@rezo-zero.com' . "\r\n" .
+			    $headers = 'From: '.$CONF['mail']. "\r\n" .
 			    'X-Mailer: PHP/' . phpversion();
 
 			    mail($to, $subject, $message, $headers);
@@ -315,11 +312,11 @@ class Crawler
 		else {
 			$persisted[md5($this->url)]['time'] = null;
 		}
-		$persisted[md5($this->url)]['status'] = (int) $this->variables['status'];
-		$persisted[md5($this->url)]['effective_url'] = $this->variables['effective_url'];
-		$persisted[md5($this->url)]['cms_version'] = $this->variables['cms_version'];
-		$persisted[md5($this->url)]['code'] = $this->variables['code'];
-		$persisted[md5($this->url)]['lastest'] = date('Y-m-d H:i:s');
+		$persisted[md5($this->url)]['status'] = 		$this->variables['status'];
+		$persisted[md5($this->url)]['effective_url'] = 	$this->variables['effective_url'];
+		$persisted[md5($this->url)]['cms_version'] = 	$this->variables['cms_version'];
+		$persisted[md5($this->url)]['code'] = 			$this->variables['code'];
+		$persisted[md5($this->url)]['lastest'] = 		date('Y-m-d H:i:s');
 
 		if ($persisted[md5($this->url)]['successCount'] > 0 && 
 			$persisted[md5($this->url)]['totalTime'] > 0) 
