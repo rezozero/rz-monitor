@@ -1,7 +1,8 @@
 @bg-color: #EEE;
+@green: #00e7b4;
 
 body {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 12px;
 	margin: 50px auto;
 	width: 990px;
@@ -14,10 +15,10 @@ h1 {
 	font-weight: lighter;
 	font-size: 40px;
 	margin-bottom: 0px;
-	padding: 10px 15px;
+	padding: 12px 16px;
 
 	display: inline-block;
-	background-color: darken(@bg-color, 20%);
+	background-color: @green;
 }
 
 table {
@@ -29,12 +30,13 @@ table {
 	.box-shadow(0px, 40px, 50px, rgba(0,0,0,0.15));
 
 	th, td {
-		padding: 5px 15px;
+		padding: 9px 15px;
 		border: none;
-		border-top:1px solid #CCC;
 		border-collapse: collapse;
 		background-color: @bg-color;
 		text-align: left;
+		font-weight: normal;
+		font-size: 12px;
 
 		.cell-colors();
 
@@ -44,7 +46,13 @@ table {
 	}
 
 	th {
-		background-color: darken(@bg-color, 20%);
+		background-color: @green;
+		&:first-child {
+			background-color: lighten(@green, 3%);
+		}
+		&:nth-child(2n+3) {
+			background-color: lighten(@green, 3%);
+		}
 	}
 
 	tr:nth-child(even) {
@@ -75,8 +83,8 @@ table {
 			background-image: url('../img/iconOnline.png');
 			background-size: 16px 16px;
 			position: absolute;
-			top: 4px;
-			left: 15px;
+			top: 9px;
+			left: 22px;
 		}
 		position: relative;
 		text-indent: -9999px;
@@ -92,8 +100,8 @@ table {
 			background-image: url('../img/iconFailed.png');
 			background-size: 16px 16px;
 			position: absolute;
-			top: 4px;
-			left: 15px;
+			top: 9px;
+			left: 22px;
 		}
 		position: relative;
 		text-indent: -9999px;
@@ -109,8 +117,8 @@ table {
 			background-image: url('../img/iconDown.png');
 			background-size: 16px 16px;
 			position: absolute;
-			top: 4px;
-			left: 15px;
+			top: 9px;
+			left: 22px;
 		}
 		position: relative;
 

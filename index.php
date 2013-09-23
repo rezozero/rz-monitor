@@ -26,7 +26,7 @@ define('BASE_FOLDER', dirname(__FILE__));
 include_once(BASE_FOLDER.'/autoload.php');
 
 /*
- * Conf
+ * CONF
  */
 $confFile = file_get_contents(BASE_FOLDER.'/conf/conf.json');
 $CONF = json_decode($confFile, true);
@@ -34,7 +34,7 @@ $CONF = json_decode($confFile, true);
 /*
  * Command line utility with infinite crawl loop
  */
-if(defined('STDIN') ) {
+if(defined('STDIN') || php_sapi_name() == 'cli' || php_sapi_name() =='cgi-fcgi') {
 	new CLIMonitor( $CONF );
 }
 /*

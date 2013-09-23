@@ -52,8 +52,9 @@ class HTMLOutput
 <html>
 <head>
 	<title>RZ Monitor</title>
-	<link rel="stylesheet" href="./css/style.css" type="text/css" />
+	<link rel="stylesheet" href="./css/style.css" type="text/css"/>
 	<script type="text/javascript" src="./js/jquery-1.10.1.min.js"></script>
+	<script type="text/javascript" src="./js/less-1.4.1.min.js"></script>
 </head>
 <body>
 	<h1>RZ Monitor</h1>

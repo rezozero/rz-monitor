@@ -169,6 +169,9 @@ class Crawler
 		if (isset($info['effective_url'])) {
 	   		$this->variables['effective_url'] = $info['effective_url'];
 		}
+		else {
+			$this->variables['effective_url'] = "";
+		}
 		return $info;
 	}
 	/**
@@ -224,7 +227,6 @@ class Crawler
 			    'X-Mailer: PHP/' . phpversion();
 
 			    mail($to, $subject, $message, $headers);
-
 
 			    /*
 			     * Tag this site as DOWN when notification sent
