@@ -111,12 +111,18 @@ class Collector
 			if ( is_string($a['status']) ) {
 				return -1;
 			}
+			else if ( is_string($b['status']) ) {
+				return 1;
+			}
+			else {
+			
+				if ($a['status'] == $b['status']) {
+			        return 0;
+			    }
 
-			if ($a['status'] == $b['status']) {
-		        return 0;
-		    }
+			    return ($a['status'] < $b['status']) ? 1 : -1 ;
+			}
 
-		    return ($a['status'] < $b['status']) ? 1 : -1 ;
 		});
 
 		return $this->statuses;
