@@ -107,6 +107,18 @@ class Collector
 
 	public function getStatuses()
 	{
+		usort($this->statuses, function($a, $b) {
+			if ( is_string($a['status']) ) {
+				return -1;
+			}
+
+			if ($a['status'] == $b['status']) {
+		        return 0;
+		    }
+
+		    return ($a['status'] < $b['status']) ? 1 : -1 ;
+		});
+
 		return $this->statuses;
 	}
 }
