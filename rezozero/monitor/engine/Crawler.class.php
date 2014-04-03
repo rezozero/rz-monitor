@@ -131,15 +131,18 @@ class Crawler
 		/* Check if cURL is available */
 		if ($this->curlHandle !== FALSE) {
 	        // configuration des options
-	        curl_setopt($this->curlHandle, CURLOPT_URL, $this->url);
+	        curl_setopt($this->curlHandle, CURLOPT_URL,            $this->url);
 	        curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST,false);
-       		curl_setopt($this->curlHandle, CURLOPT_VERBOSE,false);
-      		curl_setopt($this->curlHandle, CURLOPT_SSLVERSION,3);
-			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER,false); 
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST, false);
+       		curl_setopt($this->curlHandle, CURLOPT_VERBOSE,        false);
+      		curl_setopt($this->curlHandle, CURLOPT_SSLVERSION,     3);
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, false); 
 	        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, TRUE);
-	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36 FirePHP/4Chrome"); 
-	        curl_setopt($this->curlHandle, CURLOPT_CONNECTTIMEOUT, 5); 
+	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT,      "Mozilla/5.0 (Windows NT 5.1; rv:15.0) Gecko/20100101 Firefox/15.0.1"); 
+
+	        if (defined("CURLOPT_IPRESOLVE")) {
+	        	curl_setopt($this->curlHandle, CURLOPT_IPRESOLVE,  CURL_IPRESOLVE_V4); 
+	        }
 	        
 	        return true;
 		}
