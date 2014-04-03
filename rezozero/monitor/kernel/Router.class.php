@@ -21,6 +21,45 @@ namespace rezozero\monitor\kernel;
 
 abstract class Router
 {
+	private static $baseURL = null;
+
+	/**
+	 * Resolve current front controller URL
+	 * 
+	 * This method is the base of every URL building methods in RZ-CMS. 
+	 * Be careful with handling it.
+	 * 
+	 * @return string 
+	 */
+	public static function getResolvedBaseUrl()
+	{
+		if (static::$baseURL === null) {
+
+			$url = pathinfo($_SERVER['PHP_SELF']);
+
+			// Protocol
+			$pageURL = 'http';
+			if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+			$pageURL .= "://";
+			// Port
+			if (isset($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"] != "80") {
+				$pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"];
+			} else {
+				$pageURL .= $_SERVER["SERVER_NAME"];
+			}
+			// Non root folder
+			if (!empty($url["dirname"]) && $url["dirname"] != '/') {
+				$pageURL .= $url["dirname"];
+			}
+			// Trailing slash
+			$pageURL .= '/';
+
+			static::$baseURL = $pageURL;
+		}
+
+		return static::$baseURL;
+	}
+	
 	/**
 	 * Parse query string and current url to get each url tokens in a single array
 	 * 

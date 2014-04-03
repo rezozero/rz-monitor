@@ -20,6 +20,7 @@ namespace rezozero\monitor\view;
 
 use rezozero\monitor\view;
 use rezozero\monitor\engine;
+use rezozero\monitor\kernel\Router;
 
 class TableOutput
 {
@@ -86,16 +87,16 @@ class TableOutput
 				switch (strtolower($key)) {
 					case 'status':
 						if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
-							$value = "<img width='16' src='img/iconOnline.png' />";
+							$value = "<img width='16' src='".Router::getResolvedBaseUrl()."img/iconOnline.png' />";
 
 							$style = "background-color:green;width:16px;";
 						}
 						else if ($value == \rezozero\monitor\engine\Crawler::STATUS_DOWN) {
-							$value = "<img width='16' src='img/iconDown.png' />";
+							$value = "<img width='16' src='".Router::getResolvedBaseUrl()."img/iconDown.png' />";
 							$style = "background-color:red;width:16px;";
 						}
 						else {
-							$value = "<img width='16' src='img/iconFailed.png' />";
+							$value = "<img width='16' src='".Router::getResolvedBaseUrl()."img/iconFailed.png' />";
 							$style = "background-color:orange;width:16px;";
 						}
 						break;
