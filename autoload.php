@@ -16,17 +16,24 @@
  * @author Ambroise Maupate
  */
 
+rz_autoload::register();
 
-function vendor_autoload( $class )
+class rz_autoload
 {
-	$root = dirname(__FILE__);
+    public static function register()
+    {
+        return spl_autoload_register(array(__CLASS__, 'includeClass'));
+    }
 
-	$parsedPath = $root.'/'.str_replace('\\', '/', $class).'.class.php';
+    public static function includeClass( $class )
+    {
+    	$root = dirname(__FILE__);
 
-	if (file_exists($parsedPath)) {
+    	$parsedPath = $root.'/'.str_replace('\\', '/', $class).'.class.php';
 
-		include_once $parsedPath;
-	}
+    	if (file_exists($parsedPath)) {
 
+    		include_once $parsedPath;
+    	}
+    }
 }
-spl_autoload_register('vendor_autoload');
