@@ -14,7 +14,7 @@ Write your email and wanted delay before each loop over your sites in **conf.jso
 In your terminal, you should use *screen* to detach RZMonitor and let it execute in background.
 
 	screen
-    
+
 	cd /yourinstallfolder
 	php index.php
 
@@ -49,7 +49,7 @@ We strongly recommand using HTTPS protocol to ensure a minimum security during a
 
 ## Copyright
 
-**REZO ZERO** sarl        
-3 rue de l’abbé Rozier    
-69007 Lyon    
-FRANCE   
+**REZO ZERO** sarl
+1 rue de l’abbé Rozier
+69007 Lyon
+FRANCE
