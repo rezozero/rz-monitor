@@ -4,6 +4,8 @@ RZ Monitor is a command-line tool made to watch website using RZ-CMS.
 It's a PHP script that download each url and search for CMS version.
 It can send a notice email, when a website cannot be accessed.
 
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/c72026e1-b0fd-4c22-b514-6a36dc7d2160/mini.png)](https://insight.sensiolabs.com/projects/c72026e1-b0fd-4c22-b514-6a36dc7d2160)
+
 ## Setup
 
 Just copy `sites.default.json` to `sites.json` and `conf.default.json` to `conf.json`.
@@ -19,7 +21,7 @@ cd /yourinstallfolder
 php index.php
 ```
 
-If you want to setup a constant crawl, you can use `crontab` to execute index.php periodically.
+If you want to setup a automatic crawl, you can use `crontab` to execute index.php periodically.
 
 ## Browser usage
 
@@ -40,7 +42,6 @@ you just have to specify your accounts in `conf.json`.
 ```
 {
     "mail":"mynotification@email.com",
-    "delay":120,
     "users": {
         "firstuser": "password",
         "seconduser": "password"
