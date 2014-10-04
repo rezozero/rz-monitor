@@ -1,17 +1,17 @@
-<?php 
+<?php
 namespace rezozero\monitor\engine;
 /**
  * Copyright REZO ZERO 2013
- * 
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
- * 
+ *
+ * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+ *
  * Ce(tte) œuvre est mise à disposition selon les termes
  * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
  *
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
  * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
- * 
- * 
+ *
+ *
  *
  * @file Crawler.class.php
  * @copyright REZO ZERO 2013
@@ -19,7 +19,7 @@ namespace rezozero\monitor\engine;
  */
 
 class Crawler
-{	
+{
 	private $url;
 	private $data;
 	private $time;
@@ -35,7 +35,7 @@ class Crawler
 	const HTTP_OK = 200;
 	const HTTP_REDIRECT = 300;
 	const HTTP_PERMANENT_REDIRECT = 301;
-	
+
 	function __construct( $url )
 	{
 		$this->url = $url;
@@ -53,16 +53,16 @@ class Crawler
 	 * @return void
 	 */
 	public function parse()
-	{	
+	{
 		$this->getInfos();
 
-		if ((int)($this->variables['code']) >= static::HTTP_OK && 
+		if ((int)($this->variables['code']) >= static::HTTP_OK &&
 			(int)($this->variables['code']) <= static::HTTP_PERMANENT_REDIRECT) {
 
 			$this->variables['status'] = static::STATUS_ONLINE;
 			$this->notifyUp();
 
-			if ($this->data != '') 
+			if ($this->data != '')
 			{
 				$cmsVersion = array();
 				if( preg_match("/\<meta name\=\"generator\" content\=\"([^\"]+)\"/", $this->data, $cmsVersion) > 0 ) {
@@ -76,7 +76,7 @@ class Crawler
 			$this->notifyError();
 		}
 
-		$this->persist();	
+		$this->persist();
 	}
 
 	public function getVariables()
@@ -86,14 +86,14 @@ class Crawler
 
 	/**
 	 * Once piece download method
-	 * 
+	 *
 	 * @return [type] [description]
 	 */
 	public function download()
-	{	
+	{
 		/* Check if cURL is available */
 		if ($this->initRequest() === true) {
-	        
+
 	        // exécution de la session
 	        $this->data = curl_exec($this->curlHandle);
 	        $info = curl_getinfo($this->curlHandle);
@@ -110,7 +110,7 @@ class Crawler
 	        	return true;
 	        }
 	        else {
-		        
+
 	        	// fermeture des ressources
 		        curl_close($ch);
 	        	$this->variables['time'] = $info['starttransfer_time'];
@@ -136,14 +136,14 @@ class Crawler
 			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST, false);
        		curl_setopt($this->curlHandle, CURLOPT_VERBOSE,        false);
       		curl_setopt($this->curlHandle, CURLOPT_SSLVERSION,     3);
-			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, false); 
+			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 	        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, TRUE);
-	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT,      "Mozilla/5.0 (Windows NT 5.1; rv:15.0) Gecko/20100101 Firefox/15.0.1"); 
+	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT,      "Mozilla/5.0 (Windows NT 5.1; rv:15.0) Gecko/20100101 Firefox/15.0.1");
 
 	        if (defined("CURLOPT_IPRESOLVE")) {
-	        	curl_setopt($this->curlHandle, CURLOPT_IPRESOLVE,  CURL_IPRESOLVE_V4); 
+	        	curl_setopt($this->curlHandle, CURLOPT_IPRESOLVE,  CURL_IPRESOLVE_V4);
 	        }
-	        
+
 	        return true;
 		}
 		else {
@@ -213,15 +213,15 @@ class Crawler
 		 * Check if previous crawl with failed too before sendin an email
 		 */
 		$file = BASE_FOLDER.'/data/persistedData.json';
-		if (file_exists($file)) 
+		if (file_exists($file))
 		{
 			$persisted = json_decode(file_get_contents($file), true);
 
-			if (isset($persisted[md5($this->url)]) && 
-				isset($persisted[md5($this->url)]['status']) && 
+			if (isset($persisted[md5($this->url)]) &&
+				isset($persisted[md5($this->url)]['status']) &&
 				$this->variables['status'] == static::STATUS_FAILED &&
 				$persisted[md5($this->url)]['status'] == static::STATUS_FAILED) {
-				
+
 				# Prev status was failed so we send mail
 				$to      = $CONF['mail'];
 			    $subject = 'Monitor rezo-zero';
@@ -247,15 +247,15 @@ class Crawler
 		 * Check if previous crawl with failed too before sendin an email
 		 */
 		$file = BASE_FOLDER.'/data/persistedData.json';
-		if (file_exists($file)) 
+		if (file_exists($file))
 		{
 			$persisted = json_decode(file_get_contents($file), true);
 
-			if (isset($persisted[md5($this->url)]) && 
-				isset($persisted[md5($this->url)]['status']) && 
-			    $this->variables['status'] == static::STATUS_ONLINE && 
+			if (isset($persisted[md5($this->url)]) &&
+				isset($persisted[md5($this->url)]['status']) &&
+			    $this->variables['status'] == static::STATUS_ONLINE &&
 				$persisted[md5($this->url)]['status'] == static::STATUS_DOWN) {
-				
+
 				# Prev status was down so we send mail when the site is up again
 				$to      = $CONF['mail'];
 			    $subject = 'Monitor rezo-zero';
@@ -323,10 +323,10 @@ class Crawler
 		$persisted[md5($this->url)]['code'] = 			$this->variables['code'];
 		$persisted[md5($this->url)]['lastest'] = 		date('Y-m-d H:i:s');
 
-		if ($persisted[md5($this->url)]['successCount'] > 0 && 
-			$persisted[md5($this->url)]['totalTime'] > 0) 
+		if ($persisted[md5($this->url)]['successCount'] > 0 &&
+			$persisted[md5($this->url)]['totalTime'] > 0)
 		{
-			$persisted[md5($this->url)]['avg'] = $persisted[md5($this->url)]['totalTime'] / 
+			$persisted[md5($this->url)]['avg'] = $persisted[md5($this->url)]['totalTime'] /
 													$persisted[md5($this->url)]['successCount'];
 		}
 
@@ -335,5 +335,3 @@ class Crawler
 		file_put_contents($file, json_encode($persisted, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 	}
 }
-
-?>

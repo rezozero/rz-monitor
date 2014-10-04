@@ -1,4 +1,6 @@
 {
-	"0":"http://www.google.com",
-	"1":"http://www.rezo-zero.com"
+    "sites" : [
+        "http://www.google.com",
+        "http://www.rezo-zero.com"
+    ]
 }

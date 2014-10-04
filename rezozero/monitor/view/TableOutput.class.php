@@ -1,17 +1,17 @@
-<?php 
+<?php
 namespace rezozero\monitor\view;
 
 /**
  * Copyright REZO ZERO 2013
- * 
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
- * 
+ *
+ * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+ *
  * Ce(tte) œuvre est mise à disposition selon les termes
  * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
  *
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
  * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
- * 
+ *
  *
  * @file TableOutput.class.php
  * @copyright REZO ZERO 2013
@@ -33,7 +33,7 @@ class TableOutput
 		'url'=>60,
 		'status'=>6
 	);
-	
+
 	function __construct()
 	{
 		system("clear");
@@ -119,12 +119,12 @@ class TableOutput
 						$value = str_replace(".eu", "", $value);
 						$value = str_replace(".fr", "", $value);
 						break;
-					
+
 					default:
 						# code...
 						break;
 				}
-				
+
 				$this->content("<td class='".$key."'");
 				if ($width !== null) {
 					$this->content(" style='width:".$width."px; height:16px;'");
@@ -153,6 +153,3 @@ class TableOutput
 		return true;
 	}
 }
-
-
- ?>

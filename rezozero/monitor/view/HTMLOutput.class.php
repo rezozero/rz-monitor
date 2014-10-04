@@ -1,17 +1,17 @@
-<?php 
+<?php
 namespace rezozero\monitor\view;
 
 /**
  * Copyright REZO ZERO 2013
- * 
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
- * 
+ *
+ * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+ *
  * Ce(tte) œuvre est mise à disposition selon les termes
  * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
  *
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
  * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
- * 
+ *
  *
  * @file HTMLOutput.class.php
  * @copyright REZO ZERO 2013
@@ -37,7 +37,7 @@ class HTMLOutput
 		'status'=>6,
 		'cms_version'=>18
 	);
-	
+
 	function __construct()
 	{
 		$this->header();
@@ -67,7 +67,7 @@ class HTMLOutput
 	{
 		ob_start();
 		?>
-</body>	
+</body>
 </html>
 		<?php
 
@@ -89,7 +89,7 @@ class HTMLOutput
 			$this->content("\n<tr>");
 
 			krsort($crawler);
-			foreach ($crawler as $key => $value) 
+			foreach ($crawler as $key => $value)
 			{
 				/*
 				 * If not in column width donot display
@@ -100,7 +100,7 @@ class HTMLOutput
 				if ($ckey > 0) {
 
 					$additionalClass='';
-					
+
 					switch ($key ) {
 						case 'status':
 							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
@@ -137,7 +137,7 @@ class HTMLOutput
 							$value = str_replace(".eu", "", $value);
 							$value = str_replace(".fr", "", $value);
 							break;
-						
+
 						default:
 							# code...
 							break;
@@ -160,5 +160,4 @@ class HTMLOutput
 		return $this->header.$this->content.$this->footer;
 	}
 }
-
- ?>
+?>

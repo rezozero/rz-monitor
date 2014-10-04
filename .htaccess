@@ -2,7 +2,7 @@
 # RZ_CMS
 # REZO ZERO
 # Ambroise Maupate & Julien Blanchet
-# 
+#
 # .htaccess
 # ------------------------------------
 
@@ -31,4 +31,3 @@ RewriteRule ^img - [L,NC]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ index.php [QSA,L]
-

@@ -1,17 +1,17 @@
-<?php 
+<?php
 namespace rezozero\monitor\view;
 
 /**
  * Copyright REZO ZERO 2013
- * 
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
- * 
+ *
+ * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+ *
  * Ce(tte) œuvre est mise à disposition selon les termes
  * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
  *
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
  * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
- * 
+ *
  *
  * @file CLIOutput.class.php
  * @copyright REZO ZERO 2013
@@ -40,7 +40,7 @@ class CLIOutput
 		'status'=>6,
 		'cms_version'=>18
 	);
-	
+
 	function __construct()
 	{
 		system("clear");
@@ -154,7 +154,7 @@ class CLIOutput
 							$value = str_replace(".eu", "", $value);
 							$value = str_replace(".fr", "", $value);
 							break;
-						
+
 						default:
 							# code...
 							break;
@@ -184,14 +184,14 @@ class CLIOutput
 		return true;
 	}
 
-	public static function echoAT($Row,$Col,$prompt="") { 
-	    // Display prompt at specific screen coords 
-	    echo "\033[".$Row.";".$Col."H".$prompt; 
+	public static function echoAT($Row,$Col,$prompt="") {
+	    // Display prompt at specific screen coords
+	    echo "\033[".$Row.";".$Col."H".$prompt;
 	}
 	public function cleanScreen()
 	{
-		for ($i=0; $i < $this->settings['screen']['width']; $i++) { 
-			for ($j=0; $j < $this->settings['screen']['height']; $j++) { 
+		for ($i=0; $i < $this->settings['screen']['width']; $i++) {
+			for ($j=0; $j < $this->settings['screen']['height']; $j++) {
 				static::echoAT($i, $j, ' ');
 			}
 		}
@@ -260,5 +260,3 @@ class Colors {
 		return array_keys($this->background_colors);
 	}
 }
-
- ?>
