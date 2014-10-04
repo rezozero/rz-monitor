@@ -18,18 +18,20 @@ namespace rezozero\monitor\engine;
  * @author Ambroise Maupate
  */
 
+use \rezozero\monitor\engine\Crawler;
 
 class Collector
 {
 	private $urls;
 	private $statuses;
 	private $parsers;
+	private $conf;
 
 	private $multiHandle;
 
-	public function __construct( $confURL )
+	public function __construct( $confURL, &$CONF )
 	{
-
+		$this->conf = $CONF;
 		$this->statuses = array(
 			0 => array(
 				'url'=>			_('Website'),
@@ -62,7 +64,7 @@ class Collector
 			{
 				foreach ($this->urls['sites'] as $key => $value)
 				{
-					$this->parsers[$key] = new \rezozero\monitor\engine\Crawler( $value );
+					$this->parsers[$key] = new Crawler($value, $this->conf);
 
 					// Add parser curl handle to the multiCurl
 					curl_multi_add_handle($this->multiHandle, $this->parsers[$key]->getCurlHandle());

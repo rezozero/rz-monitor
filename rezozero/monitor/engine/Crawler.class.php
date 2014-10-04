@@ -23,7 +23,7 @@ class Crawler
 	private $url;
 	private $data;
 	private $time;
-
+	private $conf;
 	private $variables;
 
 	private $curlHandle;
@@ -36,10 +36,11 @@ class Crawler
 	const HTTP_REDIRECT = 300;
 	const HTTP_PERMANENT_REDIRECT = 301;
 
-	function __construct( $url )
+	function __construct( $url,  &$CONF )
 	{
 		$this->url = $url;
 		$this->variables = array();
+		$this->conf = $CONF;
 
 		$this->variables['url'] = $url;
 		$this->variables['cms_version'] = "";
@@ -207,8 +208,6 @@ class Crawler
 
 	public function notifyError()
 	{
-		global $CONF;
-
 		/*
 		 * Check if previous crawl with failed too before sendin an email
 		 */
@@ -223,10 +222,10 @@ class Crawler
 				$persisted[md5($this->url)]['status'] == static::STATUS_FAILED) {
 
 				# Prev status was failed so we send mail
-				$to      = $CONF['mail'];
+				$to      = $this->conf['mail'];
 			    $subject = 'Monitor rezo-zero';
 			    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
-			    $headers = 'From: '.$CONF['mail']. "\r\n" .
+			    $headers = 'From: '.$this->conf['mail']. "\r\n" .
 			    'X-Mailer: PHP/' . phpversion();
 
 			    mail($to, $subject, $message, $headers);
@@ -241,8 +240,6 @@ class Crawler
 
 	public function notifyUp()
 	{
-		global $CONF;
-
 		/*
 		 * Check if previous crawl with failed too before sendin an email
 		 */
@@ -257,10 +254,10 @@ class Crawler
 				$persisted[md5($this->url)]['status'] == static::STATUS_DOWN) {
 
 				# Prev status was down so we send mail when the site is up again
-				$to      = $CONF['mail'];
+				$to      = $this->conf['mail'];
 			    $subject = 'Monitor rezo-zero';
 			    $message = 'URL : '.$this->url.' is now online at '.date('Y-m-d H:i:s');
-			    $headers = 'From: '.$CONF['mail']. "\r\n" .
+			    $headers = 'From: '.$this->conf['mail']. "\r\n" .
 			    'X-Mailer: PHP/' . phpversion();
 
 			    mail($to, $subject, $message, $headers);

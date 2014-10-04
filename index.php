@@ -19,7 +19,6 @@ use \rezozero\monitor\view;
 use \rezozero\monitor\kernel\CLIMonitor;
 use \rezozero\monitor\kernel\Router;
 use \rezozero\monitor\engine\Collector;
-use \rezozero\monitor\view\CLIOutput;
 
 
 define('BASE_FOLDER', dirname(__FILE__));
@@ -35,7 +34,7 @@ $CONF = json_decode($confFile, true);
  * Command line utility with infinite crawl loop
  */
 if(php_sapi_name() == 'cli') {
-	new CLIMonitor( $CONF );
+	new CLIMonitor($CONF);
 }
 /*
  * Need auth for HTTP requests
@@ -50,18 +49,15 @@ else if (Router::authentificate( $CONF ) === true) {
 	 * Just call yourdomain.com/table
 	 */
 	if (isset($tokens[0]) && $tokens[0] == 'table') {
-		$collector = new Collector('sites.json');
+		$collector = new Collector('sites.json', $CONF);
 		$output = new view\TableOutput();
 		$output->parseArray($collector->getStatuses());
 		echo $output->output();
-
-		exit();
-	}
-	/*
-	 * HTML view for internet browsers
-	 */
-	else {
-		$collector = new Collector('sites.json');
+	} else {
+		/*
+		 * HTML view for internet browsers
+		 */
+		$collector = new Collector('sites.json', $CONF);
 		$output = new view\HTMLOutput();
 		$output->parseArray($collector->getStatuses());
 		echo $output->output();

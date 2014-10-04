@@ -18,7 +18,6 @@ namespace rezozero\monitor\view;
  * @author Ambroise Maupate
  */
 
-use rezozero\monitor\view;
 use rezozero\monitor\engine;
 use rezozero\monitor\kernel\Router;
 
@@ -27,7 +26,6 @@ class TableOutput
 	private $header = "";
 	private $footer = "";
 	private $content = "";
-	private $settings;
 
 	private static $columnWidth = array(
 		'url'=>60,
@@ -40,8 +38,6 @@ class TableOutput
 
 		$this->header();
 		$this->footer();
-
-		$this->settings = array();
 
 	}
 

@@ -1,17 +1,17 @@
-<?php 
+<?php
 namespace rezozero\monitor\kernel;
 
 /**
  * Copyright REZO ZERO 2013
- * 
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. 
- * 
+ *
+ * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+ *
  * Ce(tte) œuvre est mise à disposition selon les termes
  * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
  *
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
  * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
- * 
+ *
  *
  * @file Router.class.php
  * @copyright REZO ZERO 2013
@@ -25,11 +25,11 @@ abstract class Router
 
 	/**
 	 * Resolve current front controller URL
-	 * 
-	 * This method is the base of every URL building methods in RZ-CMS. 
+	 *
+	 * This method is the base of every URL building methods in RZ-CMS.
 	 * Be careful with handling it.
-	 * 
-	 * @return string 
+	 *
+	 * @return string
 	 */
 	public static function getResolvedBaseUrl()
 	{
@@ -59,20 +59,16 @@ abstract class Router
 
 		return static::$baseURL;
 	}
-	
+
 	/**
 	 * Parse query string and current url to get each url tokens in a single array
-	 * 
+	 *
 	 * @return array URL tokens
 	 */
 	public static function parseQueryString()
 	{
 		//Remove request parameters:
 		list($path) = explode('?', $_SERVER['REQUEST_URI']);
-
-		//print_r($path);
-		//echo(strlen(dirname($_SERVER['SCRIPT_NAME']))+1);
-		//echo(dirname($_SERVER['SCRIPT_NAME']));
 
 		//Remove script path:
 		if (strlen(dirname($_SERVER['SCRIPT_NAME'])) == 1) {
@@ -92,7 +88,7 @@ abstract class Router
 	    $needed_parts = array('nonce'=>1, 'nc'=>1, 'cnonce'=>1, 'qop'=>1, 'username'=>1, 'uri'=>1, 'response'=>1);
 	    $data = array();
 	    $keys = implode('|', array_keys($needed_parts));
-	 
+
 	    preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $txt, $matches, PREG_SET_ORDER);
 
 	    foreach ($matches as $m) {
@@ -111,19 +107,18 @@ abstract class Router
 		 * If users are set, need auth
 		 */
 		if (isset($CONF['users']) && is_array($CONF['users'])) {
-			
+
 			if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
 			    header('HTTP/1.1 401 Unauthorized');
 			    header('WWW-Authenticate: Digest realm="'.$realm.
 			           '",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
 
-			    exit();
 			    return false;
 			}
 
 			// analyse la variable PHP_AUTH_DIGEST
 			if (!($data = static::http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) ||
-			    !isset($CONF['users'][$data['username']])) 
+			    !isset($CONF['users'][$data['username']]))
 			{
 				/*
 				 * ============================================================================
@@ -176,9 +171,6 @@ abstract class Router
 				return false;
 			}
 
-			// ok, utilisateur & mot de passe valide
-			//echo 'Vous êtes identifié en tant que : ' . $data['username'];
-
 			return true;
 		}
 		/*
@@ -187,5 +179,3 @@ abstract class Router
 		return true;
 	}
 }
-
- ?>
