@@ -139,6 +139,7 @@ class Crawler
       		curl_setopt($this->curlHandle, CURLOPT_SSLVERSION,     3);
 			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 	        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, TRUE);
+	        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 10);
 	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT,      "Mozilla/5.0 (Windows NT 5.1; rv:15.0) Gecko/20100101 Firefox/15.0.1");
 
 	        if (defined("CURLOPT_IPRESOLVE")) {
