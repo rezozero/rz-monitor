@@ -99,10 +99,9 @@ abstract class Router
 	    return $needed_parts ? false : $data;
 	}
 
-	public static function authentificate( &$CONF )
+	public static function authentificate(&$CONF)
 	{
-		$realm = _('RZ Monitor - Restricted area');
-
+		$realm = 'RZ Monitor - Restricted area';
 		/*
 		 * If users are set, need auth
 		 */
@@ -120,24 +119,7 @@ abstract class Router
 			if (!($data = static::http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) ||
 			    !isset($CONF['users'][$data['username']]))
 			{
-				/*
-				 * ============================================================================
-				 * Mail connexion attempt
-				 * ============================================================================
-				 */
-				# Prev status was failed so we send mail
-				$to      = $CONF['mail'];
-			    $subject = 'Monitor rezo-zero - Connexion attempt';
-			    $message = 'User : '.$data['username'].' does not exist (try at '.date('Y-m-d H:i:s').')'."\n\n";
-			    foreach ($data as $key => $value) {
-			    	 $message .= sprintf("[%s] => %s \n", $key, $value);
-			    }
-
-			    $headers = 'From: '.$CONF['mail']. "\r\n" .
-			    'X-Mailer: PHP/' . phpversion();
-
-			    mail($to, $subject, $message, $headers);
-
+				header('HTTP/1.0 401 Unauthorized');
 				return false;
 			}
 
@@ -147,27 +129,7 @@ abstract class Router
 			$valid_response = md5($A1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$A2);
 
 			if ($data['response'] != $valid_response) {
-
-				/*
-				 * ============================================================================
-				 * Mail connexion attempt
-				 * ============================================================================
-				 */
-				# Prev status was failed so we send mail
-				$to      = $CONF['mail'];
-			    $subject = 'Monitor rezo-zero - Connexion attempt';
-			    $message = 'User : '.$data['username'].' does not exist (try at '.date('Y-m-d H:i:s').')'."\n\n";
-			    foreach ($data as $key => $value) {
-			    	 $message .= sprintf("[%s] => %s \n", $key, $value);
-			    }
-
-			    $message .= sprintf("Valid response must be %s \n", $valid_response);
-
-			    $headers = 'From: '.$CONF['mail']. "\r\n" .
-			    'X-Mailer: PHP/' . phpversion();
-
-			    mail($to, $subject, $message, $headers);
-
+				header('HTTP/1.0 401 Unauthorized');
 				return false;
 			}
 

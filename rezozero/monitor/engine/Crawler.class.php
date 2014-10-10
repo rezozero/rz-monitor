@@ -1,5 +1,4 @@
 <?php
-namespace rezozero\monitor\engine;
 /**
  * Copyright REZO ZERO 2013
  *
@@ -17,7 +16,13 @@ namespace rezozero\monitor\engine;
  * @copyright REZO ZERO 2013
  * @author Ambroise Maupate
  */
+namespace rezozero\monitor\engine;
 
+use \rezozero\monitor\engine\PersistedData;
+
+/**
+ * Crawl a single website.
+ */
 class Crawler
 {
 	private $url;
@@ -25,6 +30,7 @@ class Crawler
 	private $time;
 	private $conf;
 	private $variables;
+	private $persistedData;
 
 	private $curlHandle;
 
@@ -36,9 +42,11 @@ class Crawler
 	const HTTP_REDIRECT = 300;
 	const HTTP_PERMANENT_REDIRECT = 301;
 
-	function __construct( $url,  &$CONF )
+	function __construct($url, &$CONF, PersistedData &$persistedData)
 	{
 		$this->url = $url;
+		$this->persistedData = $persistedData->getSiteData($this->url);
+
 		$this->variables = array();
 		$this->conf = $CONF;
 
@@ -57,12 +65,24 @@ class Crawler
 	{
 		$this->getInfos();
 
-		if ((int)($this->variables['code']) >= static::HTTP_OK &&
-			(int)($this->variables['code']) <= static::HTTP_PERMANENT_REDIRECT) {
-
+		if ($this->variables['code'] >= static::HTTP_OK &&
+			$this->variables['code'] <= static::HTTP_PERMANENT_REDIRECT) {
+			/*
+			 * Site is up
+			 */
 			$this->variables['status'] = static::STATUS_ONLINE;
-			$this->notifyUp();
 
+			if (null !== $this->persistedData &&
+					$this->persistedData['status'] == static::STATUS_DOWN) {
+				/*
+				 * If site was DOWN, we notify it's UP again.
+				 */
+				$this->notifyUp();
+			}
+
+			/*
+			 * Parse generator data to get CMS version.
+			 */
 			if ($this->data != '')
 			{
 				$cmsVersion = array();
@@ -70,19 +90,39 @@ class Crawler
 					$this->variables['cms_version'] = $cmsVersion[1];
 				}
 			}
-		}
-		else
-		{
-			$this->variables['status'] = static::STATUS_FAILED;
-			$this->notifyError();
-		}
 
-		$this->persist();
+		} elseif (null !== $this->persistedData &&
+					$this->persistedData['status'] == static::STATUS_FAILED) {
+			/*
+			 * Second time FAILED, site is now DOWN,
+			 * we send a notification
+			 */
+			$this->variables['status'] = static::STATUS_DOWN;
+			$this->notifyError();
+
+		} elseif (null !== $this->persistedData &&
+					$this->persistedData['status'] == static::STATUS_DOWN) {
+			/*
+			 * Site is already DOWN, do nothing
+			 */
+			$this->variables['status'] = static::STATUS_DOWN;
+
+		} else {
+			/*
+			 * First failed for this site,
+			 * we wait a second crawl to confirm.
+			 */
+			$this->variables['status'] = static::STATUS_FAILED;
+		}
 	}
 
 	public function getVariables()
 	{
 		return $this->variables;
+	}
+	public function getUrl()
+	{
+		return $this->url;
 	}
 
 	/**
@@ -139,7 +179,7 @@ class Crawler
       		curl_setopt($this->curlHandle, CURLOPT_SSLVERSION,     3);
 			curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 	        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, TRUE);
-	        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 10);
+	        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT,        10);
 	        curl_setopt($this->curlHandle, CURLOPT_USERAGENT,      "Mozilla/5.0 (Windows NT 5.1; rv:15.0) Gecko/20100101 Firefox/15.0.1");
 
 	        if (defined("CURLOPT_IPRESOLVE")) {
@@ -163,7 +203,7 @@ class Crawler
 		$info = curl_getinfo($this->curlHandle);
 
 		if (isset($info['http_code'])) {
-	   		$this->variables['code'] = $info['http_code'];
+	   		$this->variables['code'] = (int) $info['http_code'];
 		}
 		if (isset($info['starttransfer_time'])) {
 	   		$this->variables['time'] = $info['starttransfer_time'];
@@ -207,129 +247,105 @@ class Crawler
 		return $this->curlHandle;
 	}
 
+	/**
+	 * Send an email after a site has failed for the second time,
+	 * then set it as DOWN.
+	 */
 	public function notifyError()
 	{
-		/*
-		 * Check if previous crawl with failed too before sendin an email
-		 */
-		$file = BASE_FOLDER.'/data/persistedData.json';
-		if (file_exists($file))
-		{
-			$persisted = json_decode(file_get_contents($file), true);
-
-			if (isset($persisted[md5($this->url)]) &&
-				isset($persisted[md5($this->url)]['status']) &&
-				$this->variables['status'] == static::STATUS_FAILED &&
-				$persisted[md5($this->url)]['status'] == static::STATUS_FAILED) {
-
-				# Prev status was failed so we send mail
-				$to      = $this->conf['mail'];
-			    $subject = 'Monitor rezo-zero';
-			    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
-			    $headers = 'From: '.$this->conf['mail']. "\r\n" .
-			    'X-Mailer: PHP/' . phpversion();
-
-			    mail($to, $subject, $message, $headers);
-
-			    /*
-			     * Tag this site as DOWN when notification sent
-			     */
-			    $this->variables['status'] = static::STATUS_DOWN;
-			}
+		# Prev status was failed so we send mail
+		$fromEmail = $this->conf['sender'];
+		if (is_array($this->conf['mail'])) {
+			$to = implode(', ', $this->conf['mail']);
+		} else {
+			$to = $this->conf['mail'];
 		}
-	}
+	    $subject = 'Monitor rezo-zero';
+	    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
+	    $headers = 'From: RZ Monitor <'.$fromEmail. ">\r\n" .
+	    'X-Mailer: PHP/' . phpversion();
 
+	    mail($to, $subject, $message, $headers);
+	}
+	/**
+	 * Send email when a site is online again.
+	 */
 	public function notifyUp()
 	{
-		/*
-		 * Check if previous crawl with failed too before sendin an email
-		 */
-		$file = BASE_FOLDER.'/data/persistedData.json';
-		if (file_exists($file))
-		{
-			$persisted = json_decode(file_get_contents($file), true);
-
-			if (isset($persisted[md5($this->url)]) &&
-				isset($persisted[md5($this->url)]['status']) &&
-			    $this->variables['status'] == static::STATUS_ONLINE &&
-				$persisted[md5($this->url)]['status'] == static::STATUS_DOWN) {
-
-				# Prev status was down so we send mail when the site is up again
-				$to      = $this->conf['mail'];
-			    $subject = 'Monitor rezo-zero';
-			    $message = 'URL : '.$this->url.' is now online at '.date('Y-m-d H:i:s');
-			    $headers = 'From: '.$this->conf['mail']. "\r\n" .
-			    'X-Mailer: PHP/' . phpversion();
-
-			    mail($to, $subject, $message, $headers);
-			}
+		# Prev status was failed so we send mail
+		$fromEmail = $this->conf['sender'];
+		if (is_array($this->conf['mail'])) {
+			$to = implode(', ', $this->conf['mail']);
+		} else {
+			$to = $this->conf['mail'];
 		}
+	    $subject = 'Monitor rezo-zero';
+	    $message = 'URL : '.$this->url.' is now online at '.date('Y-m-d H:i:s');
+	    $headers = 'From: RZ Monitor <'.$fromEmail. ">\r\n" .
+	    'X-Mailer: PHP/' . phpversion();
+
+	    mail($to, $subject, $message, $headers);
 	}
 
-	public function persist()
+	/**
+	 * Update data to persist and return whole status array.
+	 *
+	 * @return array
+	 */
+	public function getPersistableData()
 	{
-		$file = BASE_FOLDER.'/data/persistedData.json';
-
-		$persisted = array();
-
-		if (file_exists($file)) {
-			$persisted = json_decode(file_get_contents($file), true);
+		if (null === $this->persistedData) {
+			$this->persistedData = array(
+				'url' => $this->url,
+				'totalTime' => 0,
+				'crawlCount' => 0,
+				'successCount' => 0,
+				'failCount' => 0,
+			);
 		}
 
-		if (isset($persisted[md5($this->url)]))  {
-			if (isset($persisted[md5($this->url)]['crawlCount'])) {
-				$persisted[md5($this->url)]['crawlCount']++;
-			}
-			else {
-				$persisted[md5($this->url)]['crawlCount'] = 1;
-			}
 
-			if (is_float($this->variables['time'])) {
-				$persisted[md5($this->url)]['totalTime'] += 	$this->variables['time'];
-			}
-		}
-		else {
-			$persisted[md5($this->url)] = $this->variables;
-			$persisted[md5($this->url)]['totalTime'] = $this->time;
-			$persisted[md5($this->url)]['crawlCount'] = 1;
-			$persisted[md5($this->url)]['successCount'] = 0;
-			$persisted[md5($this->url)]['failCount'] = 0;
-		}
-
-		if ($this->variables['status'] == static::STATUS_ONLINE) {
-			$persisted[md5($this->url)]['successCount']++;
-		}
-		else {
-			$persisted[md5($this->url)]['failCount']++;
+		if (isset($this->persistedData['crawlCount'])) {
+			$this->persistedData['crawlCount']++;
+		} else {
+			$this->persistedData['crawlCount'] = 1;
 		}
 
 		if (is_float($this->variables['time'])) {
-			$persisted[md5($this->url)]['time'] = (float)$this->variables['time'];
+			$this->persistedData['totalTime'] += $this->variables['time'];
 		}
-		else {
-			$persisted[md5($this->url)]['time'] = null;
+
+
+		if ($this->variables['status'] == static::STATUS_ONLINE) {
+			$this->persistedData['successCount']++;
+		} else {
+			$this->persistedData['failCount']++;
 		}
+
+		if (is_float($this->variables['time'])) {
+			$this->persistedData['time'] = (float)$this->variables['time'];
+		} else {
+			$this->persistedData['time'] = null;
+		}
+
 		if (is_float($this->variables['connect_time'])) {
-			$persisted[md5($this->url)]['connect_time'] = (float)$this->variables['connect_time'];
+			$this->persistedData['connect_time'] = (float)$this->variables['connect_time'];
+		} else {
+			$this->persistedData['time'] = null;
 		}
-		else {
-			$persisted[md5($this->url)]['time'] = null;
-		}
-		$persisted[md5($this->url)]['status'] = 		$this->variables['status'];
-		$persisted[md5($this->url)]['effective_url'] = 	$this->variables['effective_url'];
-		$persisted[md5($this->url)]['cms_version'] = 	$this->variables['cms_version'];
-		$persisted[md5($this->url)]['code'] = 			$this->variables['code'];
-		$persisted[md5($this->url)]['lastest'] = 		date('Y-m-d H:i:s');
 
-		if ($persisted[md5($this->url)]['successCount'] > 0 &&
-			$persisted[md5($this->url)]['totalTime'] > 0)
+		$this->persistedData['status'] = 		$this->variables['status'];
+		$this->persistedData['effective_url'] = $this->variables['effective_url'];
+		$this->persistedData['cms_version'] = 	$this->variables['cms_version'];
+		$this->persistedData['code'] = 			$this->variables['code'];
+		$this->persistedData['lastest'] = 		date('Y-m-d H:i:s');
+
+		if ($this->persistedData['successCount'] > 0 &&
+			$this->persistedData['totalTime'] > 0)
 		{
-			$persisted[md5($this->url)]['avg'] = $persisted[md5($this->url)]['totalTime'] /
-													$persisted[md5($this->url)]['successCount'];
+			$this->persistedData['avg'] = $this->persistedData['totalTime'] / $this->persistedData['successCount'];
 		}
 
-		$this->variables = $persisted[md5($this->url)];
-
-		file_put_contents($file, json_encode($persisted, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+		return $this->persistedData;
 	}
 }

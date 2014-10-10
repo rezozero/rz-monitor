@@ -20,6 +20,7 @@ namespace rezozero\monitor\kernel;
 use \rezozero\monitor\view;
 use \rezozero\monitor\engine\Collector;
 use \rezozero\monitor\view\CLIOutput;
+use \rezozero\monitor\engine\PersistedData;
 
 
 class CLIMonitor
@@ -27,11 +28,13 @@ class CLIMonitor
 	private $output;
 	private $colors;
 	private $collector;
+	private $data;
 
-	function __construct( &$CONF )
+	function __construct(&$CONF, PersistedData &$data)
 	{
 		$this->output = new view\CLIOutput();
 		$this->colors = new view\Colors();
+		$this->data = $data;
 
 		CLIOutput::echoAT(
 			0,
@@ -43,7 +46,7 @@ class CLIMonitor
 			)
 		);
 
-		$this->collector = new Collector('sites.json', $CONF);
+		$this->collector = new Collector('sites.json', $CONF, $this->data);
 
 		$this->output->parseArray($this->collector->getStatuses());
 		system("clear");
