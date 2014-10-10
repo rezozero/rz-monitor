@@ -1,4 +1,13 @@
 <?php
+/*
+ * Copyright REZO ZERO 2014
+ *
+ *
+ *
+ * @file Colors.php
+ * @copyright REZO ZERO 2014
+ * @author Ambroise Maupate
+ */
 namespace rezozero\monitor\view;
 
 class Colors {
