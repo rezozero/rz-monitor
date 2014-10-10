@@ -1,20 +1,26 @@
 # RZ Monitor
 
-RZ Monitor is a command-line tool made to watch website using RZ-CMS.
-It's a PHP script that download each url and search for CMS version.
-It can send a notice email, when a website cannot be accessed.
+RZ Monitor is a command-line tool made to watch website using RZ-CMS and others too…
+It's based on *cURL* and it downloads each url and searches for CMS version.
+It can send a notification email when a website cannot be accessed and when it is reachable again.
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/c72026e1-b0fd-4c22-b514-6a36dc7d2160/mini.png)](https://insight.sensiolabs.com/projects/c72026e1-b0fd-4c22-b514-6a36dc7d2160)
 
+## Dependancies
+
+* PHP 5.4 min
+* cURL
+* Composer
+
 ## Setup
 
-Just copy `sites.default.json` to `sites.json` and `conf.default.json` to `conf.json`.
-
-Write your email and wanted delay before each loop over your sites in **conf.json**.
-Then setup your URLs in **site.json**.
+* Copy `sites.default.json` to `sites.json` and `conf.default.json` to `conf.json`.
+* Write your emails and users/passwords in **conf.json** file.
+* Setup your URLs in **site.json**.
+* Run `composer install` to install dependencies and create autoloader
+* Run `composer dumpautoload -o` to get better autoload performances.
 
 ## Command-line usage
-
 
 ```
 cd /yourinstallfolder
@@ -22,6 +28,12 @@ php index.php
 ```
 
 If you want to setup a automatic crawl, you can use `crontab` to execute index.php periodically.
+
+```
+# Check websites every 10 minutes
+*/10 * * * * /usr/bin/php /path/to/index.php
+```
+
 
 ## Browser usage
 
@@ -41,7 +53,11 @@ you just have to specify your accounts in `conf.json`.
 
 ```
 {
-    "mail":"mynotification@email.com",
+    "sender":"mynotification@email.com",
+    "mail":[
+        "mynotification@email.com",
+        "mysecondnotification@email.com"
+    ],
     "users": {
         "firstuser": "password",
         "seconduser": "password"

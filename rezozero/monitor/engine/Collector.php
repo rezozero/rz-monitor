@@ -1,24 +1,17 @@
 <?php
-namespace rezozero\monitor\engine;
-
-/**
- * Copyright REZO ZERO 2013
- *
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
- *
- * Ce(tte) œuvre est mise à disposition selon les termes
- * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
- *
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
- * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+/*
+ * Copyright REZO ZERO 2014
  *
  *
- * @file Collector.class.php
- * @copyright REZO ZERO 2013
+ *
+ * @file Collector.php
+ * @copyright REZO ZERO 2014
  * @author Ambroise Maupate
  */
+namespace rezozero\monitor\engine;
 
 use \rezozero\monitor\engine\Crawler;
+use \rezozero\monitor\engine\PersistedData;
 
 class Collector
 {
@@ -26,11 +19,13 @@ class Collector
 	private $statuses;
 	private $parsers;
 	private $conf;
+	private $data;
 
 	private $multiHandle;
 
-	public function __construct( $confURL, &$CONF )
+	public function __construct($confURL, &$CONF, PersistedData &$data)
 	{
+		$this->data = $data;
 		$this->conf = $CONF;
 		$this->statuses = array(
 			0 => array(
@@ -57,15 +52,13 @@ class Collector
 		{
 			$content = file_get_contents(BASE_FOLDER.'/conf/'.$confURL);
 
-
 			$this->urls = json_decode($content, true);
 
 			if ($this->urls !== null && is_array($this->urls))
 			{
 				foreach ($this->urls['sites'] as $key => $value)
 				{
-					$this->parsers[$key] = new Crawler($value, $this->conf);
-
+					$this->parsers[$key] = new Crawler($value, $this->conf, $this->data);
 					// Add parser curl handle to the multiCurl
 					curl_multi_add_handle($this->multiHandle, $this->parsers[$key]->getCurlHandle());
 				}
@@ -92,15 +85,16 @@ class Collector
 	{
 		foreach ($this->parsers as $key => $parser) {
 			$parser->parse();
-			$this->statuses[] = $parser->getVariables();
+			$urlData = $parser->getPersistableData();
+			$this->statuses[] = $urlData;
+			$this->data->setSiteData($parser->getUrl(), $urlData);
 
 			curl_multi_remove_handle($this->multiHandle, $parser->getCurlHandle());
-
-			$this->parsers[$key] = null;
-			unset($this->parsers[$key]);
 		}
 
 		curl_multi_close($this->multiHandle);
+
+		$this->data->writeData();
 	}
 
 	public function getStatuses()
