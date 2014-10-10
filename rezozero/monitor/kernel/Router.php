@@ -82,7 +82,7 @@ abstract class Router
 	}
 
 	// fonction pour analyser l'en-tête http auth
-	public static function http_digest_parse($txt)
+	public static function httpDigestParse($txt)
 	{
 	    // protection contre les données manquantes
 	    $needed_parts = array('nonce'=>1, 'nc'=>1, 'cnonce'=>1, 'qop'=>1, 'username'=>1, 'uri'=>1, 'response'=>1);
@@ -116,7 +116,7 @@ abstract class Router
 			}
 
 			// analyse la variable PHP_AUTH_DIGEST
-			if (!($data = static::http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) ||
+			if (!($data = static::httpDigestParse($_SERVER['PHP_AUTH_DIGEST'])) ||
 			    !isset($CONF['users'][$data['username']]))
 			{
 				header('HTTP/1.0 401 Unauthorized');
