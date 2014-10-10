@@ -1,6 +1,22 @@
 {
+    "name": "rezozero/rz-monitor",
+    "homepage": "https://github.com/rezozero/rz-monitor",
+    "description": "RZ Monitor is a command-line tool made to watch website using RZ-CMS and others too…",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "REZO ZERO",
+            "homepage": "http://www.rezo-zero.com"
+        },
+        {
+            "name": "Ambroise Maupate",
+            "homepage": "https://github.com/ambroisemaupate"
+        }
+    ],
     "require": {
-        "swiftmailer/swiftmailer":"@stable"
+        "php": ">=5.4",
+        "lib-curl": "*",
+        "swiftmailer/swiftmailer":"~5.3.0"
     },
     "autoload": {
         "psr-4": {"rezozero\\": "rezozero/"}
