@@ -1,24 +1,17 @@
 <?php
-/**
- * Copyright REZO ZERO 2013
- *
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
- *
- * Ce(tte) œuvre est mise à disposition selon les termes
- * de la Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Pas de Modification 3.0 France.
- *
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
- * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+/*
+ * Copyright REZO ZERO 2014
  *
  *
  *
- * @file Crawler.class.php
- * @copyright REZO ZERO 2013
+ * @file Crawler.php
+ * @copyright REZO ZERO 2014
  * @author Ambroise Maupate
  */
 namespace rezozero\monitor\engine;
 
 use \rezozero\monitor\engine\PersistedData;
+use \rezozero\monitor\view\Notifier;
 
 /**
  * Crawl a single website.
@@ -31,6 +24,7 @@ class Crawler
 	private $conf;
 	private $variables;
 	private $persistedData;
+	private $notifier;
 
 	private $curlHandle;
 
@@ -55,6 +49,8 @@ class Crawler
 		$this->variables['time'] = "";
 
 		$this->initRequest();
+
+		$this->notifier = new Notifier($this->conf);
 	}
 
 	/**
@@ -77,7 +73,7 @@ class Crawler
 				/*
 				 * If site was DOWN, we notify it's UP again.
 				 */
-				$this->notifyUp();
+				$this->notifier->notifyUp($this->url);
 			}
 
 			/*
@@ -98,7 +94,7 @@ class Crawler
 			 * we send a notification
 			 */
 			$this->variables['status'] = static::STATUS_DOWN;
-			$this->notifyError();
+			$this->notifier->notifyDown($this->url);
 
 		} elseif (null !== $this->persistedData &&
 					$this->persistedData['status'] == static::STATUS_DOWN) {
@@ -245,46 +241,6 @@ class Crawler
 	public function &getCurlHandle()
 	{
 		return $this->curlHandle;
-	}
-
-	/**
-	 * Send an email after a site has failed for the second time,
-	 * then set it as DOWN.
-	 */
-	public function notifyError()
-	{
-		# Prev status was failed so we send mail
-		$fromEmail = $this->conf['sender'];
-		if (is_array($this->conf['mail'])) {
-			$to = implode(', ', $this->conf['mail']);
-		} else {
-			$to = $this->conf['mail'];
-		}
-	    $subject = 'Monitor rezo-zero';
-	    $message = 'URL : '.$this->url.' is not reachable at '.date('Y-m-d H:i:s');
-	    $headers = 'From: RZ Monitor <'.$fromEmail. ">\r\n" .
-	    'X-Mailer: PHP/' . phpversion();
-
-	    mail($to, $subject, $message, $headers);
-	}
-	/**
-	 * Send email when a site is online again.
-	 */
-	public function notifyUp()
-	{
-		# Prev status was failed so we send mail
-		$fromEmail = $this->conf['sender'];
-		if (is_array($this->conf['mail'])) {
-			$to = implode(', ', $this->conf['mail']);
-		} else {
-			$to = $this->conf['mail'];
-		}
-	    $subject = 'Monitor rezo-zero';
-	    $message = 'URL : '.$this->url.' is now online at '.date('Y-m-d H:i:s');
-	    $headers = 'From: RZ Monitor <'.$fromEmail. ">\r\n" .
-	    'X-Mailer: PHP/' . phpversion();
-
-	    mail($to, $subject, $message, $headers);
 	}
 
 	/**
