@@ -1,0 +1,8 @@
+{
+    "require": {
+        "swiftmailer/swiftmailer":"@stable"
+    },
+    "autoload": {
+        "psr-4": {"rezozero\\": "rezozero/"}
+    }
+}

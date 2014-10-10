@@ -8,13 +8,13 @@ It can send a notice email, when a website cannot be accessed.
 
 ## Setup
 
-Just copy `sites.default.json` to `sites.json` and `conf.default.json` to `conf.json`.
-
-Write your email and wanted delay before each loop over your sites in **conf.json**.
-Then setup your URLs in **site.json**.
+* Copy `sites.default.json` to `sites.json` and `conf.default.json` to `conf.json`.
+* Write your emails and users/passwords in **conf.json** file.
+* Setup your URLs in **site.json**.
+* Run `composer install` to install dependencies and create autoloader
+* Run `composer dumpautoload -o` to get better autoload performances.
 
 ## Command-line usage
-
 
 ```
 cd /yourinstallfolder
@@ -41,7 +41,11 @@ you just have to specify your accounts in `conf.json`.
 
 ```
 {
-    "mail":"mynotification@email.com",
+    "sender":"mynotification@email.com",
+    "mail":[
+        "mynotification@email.com",
+        "mysecondnotification@email.com"
+    ],
     "users": {
         "firstuser": "password",
         "seconduser": "password"

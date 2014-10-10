@@ -21,9 +21,9 @@ use \rezozero\monitor\kernel\Router;
 use \rezozero\monitor\engine\Collector;
 use \rezozero\monitor\engine\PersistedData;
 
-
 define('BASE_FOLDER', dirname(__FILE__));
-include_once(BASE_FOLDER.'/autoload.php');
+
+require BASE_FOLDER.'/vendor/autoload.php';
 
 /*
  * CONF
