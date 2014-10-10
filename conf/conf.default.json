@@ -1,10 +1,10 @@
 {
     "sender":"your@email.here",
-	"mail":[
+    "mail":[
         "your@email.here",
         "another@email.here"
     ],
-	"users": {
-		"username": "password"
-	}
+    "users": {
+        "username": "password"
+    }
 }

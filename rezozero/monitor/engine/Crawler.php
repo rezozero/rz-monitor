@@ -20,7 +20,6 @@ class Crawler
 {
 	private $url;
 	private $data;
-	private $time;
 	private $conf;
 	private $variables;
 	private $persistedData;
