@@ -137,6 +137,7 @@ class HTMLOutput
 							break;
 						case 'url':
 							$value = str_replace("http://", "", $value);
+							$value = str_replace("https://", "", $value);
 							$value = str_replace("www.", "", $value);
 							$value = str_replace(".com", "", $value);
 							$value = str_replace(".net", "", $value);
