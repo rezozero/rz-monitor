@@ -1,5 +1,6 @@
 {
     "sender":"your@email.here",
+    "timezone":"Europe/Paris",
     "mail":[
         "your@email.here",
         "another@email.here"
@@ -9,7 +10,7 @@
     },
     "mailer": {
         "type": "smtp",
-        "host": "smtp.mandrillapp.com",
+        "host": "",
         "port": 587,
         "encryption": false,
         "username": "",
