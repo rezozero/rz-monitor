@@ -19,6 +19,9 @@ namespace rezozero\monitor\kernel;
  */
 
 
+use Psr\Log\LoggerInterface;
+
+
 abstract class Router
 {
 	private static $baseURL = null;
@@ -99,7 +102,7 @@ abstract class Router
 	    return $needed_parts ? false : $data;
 	}
 
-	public static function authentificate(&$CONF)
+	public static function authentificate(&$CONF, LoggerInterface $log)
 	{
 		$realm = 'RZ Monitor - Restricted area';
 		/*
@@ -129,12 +132,16 @@ abstract class Router
 			$valid_response = md5($A1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$A2);
 
 			if ($data['response'] != $valid_response) {
+				$log->addWarning($data['username'] . " has tried to connect to the monitor, but failed.");
 				header('HTTP/1.0 401 Unauthorized');
 				return false;
 			}
 
+			$log->addInfo($data['username'] . " has connected to the monitor.");
 			return true;
 		}
+
+		$log->addInfo("Someone has connected to the monitor.");
 		/*
 		 * Else no auth needed
 		 */

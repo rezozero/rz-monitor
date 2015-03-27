@@ -118,13 +118,13 @@ class CLIOutput
 					switch (strtolower($key)) {
 						case 'status':
 							if ($value == \rezozero\monitor\engine\Crawler::STATUS_ONLINE) {
-								$value = _('Online');
+								$value = 'Online';
 							}
 							else if ($value == \rezozero\monitor\engine\Crawler::STATUS_DOWN) {
-								$value = _('Down');
+								$value = 'Down';
 							}
 							else {
-								$value = _('Failed');
+								$value = 'Failed';
 							}
 							break;
 						case 'time':

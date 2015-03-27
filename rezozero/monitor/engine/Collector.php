@@ -12,6 +12,7 @@ namespace rezozero\monitor\engine;
 
 use \rezozero\monitor\engine\Crawler;
 use \rezozero\monitor\engine\PersistedData;
+use Psr\Log\LoggerInterface;
 
 class Collector
 {
@@ -23,25 +24,25 @@ class Collector
 
 	private $multiHandle;
 
-	public function __construct($confURL, &$CONF, PersistedData &$data)
+	public function __construct($confURL, &$CONF, PersistedData &$data, LoggerInterface $log)
 	{
 		$this->data = $data;
 		$this->conf = $CONF;
 		$this->statuses = array(
 			0 => array(
-				'url'=>			_('Website'),
-				'time'=>		_('Time'),
-				'connect_time'=>_('Connexion time'),
-				'avg'=>			_('AVG'),
-				'totalTime'=>	_('Total'),
-				'crawlCount'=>	_('Crawls'),
-				'code'=>		_('Code'),
-				'successCount'=>_('Success'),
-				'failCount'=>	_('Fail'),
-				'status'=>		_('Status'),
-				'lastest'=>		_('Latest crawl'),
-				'cms_version'=>	_('CMS version'),
-				'effective_url'=>_('Effective URL')
+				'url'=>			'Website',
+				'time'=>		'Time',
+				'connect_time'=>'Connexion time',
+				'avg'=>			'AVG',
+				'totalTime'=>	'Total',
+				'crawlCount'=>	'Crawls',
+				'code'=>		'Code',
+				'successCount'=>'Success',
+				'failCount'=>	'Fail',
+				'status'=>		'Status',
+				'lastest'=>		'Latest crawl',
+				'cms_version'=>	'CMS version',
+				'effective_url'=>'Effective URL'
 			)
 		);
 
@@ -58,7 +59,7 @@ class Collector
 			{
 				foreach ($this->urls['sites'] as $key => $value)
 				{
-					$this->parsers[$key] = new Crawler($value, $this->conf, $this->data);
+					$this->parsers[$key] = new Crawler($value, $this->conf, $this->data, $log);
 					// Add parser curl handle to the multiCurl
 					curl_multi_add_handle($this->multiHandle, $this->parsers[$key]->getCurlHandle());
 				}

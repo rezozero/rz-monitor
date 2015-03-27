@@ -12,6 +12,7 @@ namespace rezozero\monitor\engine;
 
 use \rezozero\monitor\engine\PersistedData;
 use \rezozero\monitor\view\Notifier;
+use Psr\Log\LoggerInterface;
 
 /**
  * Crawl a single website.
@@ -24,6 +25,7 @@ class Crawler
 	private $variables;
 	private $persistedData;
 	private $notifier;
+	private $log;
 
 	private $curlHandle;
 
@@ -35,9 +37,10 @@ class Crawler
 	const HTTP_REDIRECT = 300;
 	const HTTP_PERMANENT_REDIRECT = 301;
 
-	function __construct($url, &$CONF, PersistedData &$persistedData)
+	function __construct($url, &$CONF, PersistedData &$persistedData, LoggerInterface $log)
 	{
 		$this->url = $url;
+		$this->log = $log;
 		$this->persistedData = $persistedData->getSiteData($this->url);
 
 		$this->variables = array();
@@ -73,6 +76,7 @@ class Crawler
 				 * If site was DOWN, we notify it's UP again.
 				 */
 				$this->notifier->notifyUp($this->url);
+				$this->log->addInfo($this->url . " is not down anymore. Everything go to normal.");
 			}
 
 			/*
@@ -94,6 +98,7 @@ class Crawler
 			 */
 			$this->variables['status'] = static::STATUS_DOWN;
 			$this->notifier->notifyDown($this->url);
+			$this->log->addCritical($this->url . " is not reachable for the second time.");
 
 		} elseif (null !== $this->persistedData &&
 					$this->persistedData['status'] == static::STATUS_DOWN) {
@@ -108,6 +113,7 @@ class Crawler
 			 * we wait a second crawl to confirm.
 			 */
 			$this->variables['status'] = static::STATUS_FAILED;
+			$this->log->addWarning($this->url . " is not reachable for the first time. Waiting for a confirmation.");
 		}
 	}
 

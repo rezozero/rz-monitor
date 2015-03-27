@@ -23,9 +23,48 @@ class Notifier
         $this->CONF = $CONF;
 
         // Mail
-        $this->transport = \Swift_MailTransport::newInstance();
+        $this->transport = $this->getTransport();
         // Create the Mailer using your created Transport
         $this->mailer = \Swift_Mailer::newInstance($this->transport);
+    }
+
+    protected function getTransport()
+    {
+        if (isset($this->CONF['mailer']) &&
+            isset($this->CONF['mailer']['type']) &&
+            strtolower($this->CONF['mailer']['type']) == "smtp") {
+            $transport = \Swift_SmtpTransport::newInstance();
+
+            if (!empty($this->CONF['mailer']['host'])) {
+                $transport->setHost($this->CONF['mailer']['host']);
+            } else {
+                $transport->setHost('localhost');
+            }
+
+            if (!empty($this->CONF['mailer']['port'])) {
+                $transport->setPort((int) $this->CONF['mailer']['port']);
+            } else {
+                $transport->setPort(25);
+            }
+
+            if (!empty($this->CONF['mailer']['encryption']) &&
+                (strtolower($this->CONF['mailer']['encryption']) == "tls" ||
+                    strtolower($this->CONF['mailer']['encryption']) == "ssl")) {
+                $transport->setEncryption($this->CONF['mailer']['encryption']);
+            }
+
+            if (!empty($this->CONF['mailer']['username'])) {
+                $transport->setUsername($this->CONF['mailer']['username']);
+            }
+
+            if (!empty($this->CONF['mailer']['password'])) {
+                $transport->setPassword($this->CONF['mailer']['password']);
+            }
+
+            return $transport;
+        } else {
+            return \Swift_MailTransport::newInstance();
+        }
     }
 
     public function notifyDown($url)
