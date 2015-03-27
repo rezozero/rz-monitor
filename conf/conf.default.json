@@ -1,10 +1,19 @@
 {
     "sender":"your@email.here",
+    "timezone":"Europe/Paris",
     "mail":[
         "your@email.here",
         "another@email.here"
     ],
     "users": {
         "username": "password"
+    },
+    "mailer": {
+        "type": "smtp",
+        "host": "",
+        "port": 587,
+        "encryption": false,
+        "username": "",
+        "password": ""
     }
 }

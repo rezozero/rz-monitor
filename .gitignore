@@ -1,5 +1,6 @@
 conf/sites.json
 conf/conf.json
 data/persistedData.json
+data/monitor.log
 vendor
 composer.lock

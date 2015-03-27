@@ -14,6 +14,7 @@ use \rezozero\monitor\view;
 use \rezozero\monitor\engine\Collector;
 use \rezozero\monitor\view\CLIOutput;
 use \rezozero\monitor\engine\PersistedData;
+use Psr\Log\LoggerInterface;
 
 class CLIMonitor
 {
@@ -22,7 +23,7 @@ class CLIMonitor
 	private $collector;
 	private $data;
 
-	function __construct(&$CONF, PersistedData &$data)
+	function __construct(&$CONF, PersistedData &$data, LoggerInterface $log)
 	{
 		$this->output = new view\CLIOutput();
 		$this->colors = new view\Colors();
@@ -32,13 +33,13 @@ class CLIMonitor
 			0,
 			0,
 			$this->colors->getColoredString(
-				_('Please wait for RZ Monitor to crawl your websites'),
+				'Please wait for RZ Monitor to crawl your websites',
 				'white',
 				'black'
 			)
 		);
 
-		$this->collector = new Collector('sites.json', $CONF, $this->data);
+		$this->collector = new Collector('sites.json', $CONF, $this->data, $log);
 
 		$this->output->parseArray($this->collector->getStatuses());
 		system("clear");
