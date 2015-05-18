@@ -1,11 +1,26 @@
 <?php
-/*
- * Copyright REZO ZERO 2014
+/**
+ * Copyright © 2015, Ambroise Maupate
  *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is furnished
+ * to do so, subject to the following conditions:
  *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  *
  * @file Notifier.php
- * @copyright REZO ZERO 2014
  * @author Ambroise Maupate
  */
 namespace rezozero\monitor\view;
@@ -19,7 +34,8 @@ class Notifier
     private $transport;
     private $mailer;
 
-    public function __construct(&$CONF){
+    public function __construct(&$CONF)
+    {
         $this->CONF = $CONF;
 
         // Mail
@@ -70,14 +86,14 @@ class Notifier
     public function notifyDown($url)
     {
         $vars = array(
-            'subject' => '[Website down] '.$url.' is not reachable.',
-            'title' => $url.' is down',
-            'message'=> $url.' is not reachable at '.date('Y-m-d H:i').'.'
+            'subject' => '[Website down] ' . $url . ' is not reachable.',
+            'title' => $url . ' is down',
+            'message' => $url . ' is not reachable at ' . date('Y-m-d H:i') . '.',
         );
 
         $template = $this->getEmailTemplate();
         foreach ($vars as $key => $value) {
-            $template = str_replace('{{ '.$key.' }}', $value, $template);
+            $template = str_replace('{{ ' . $key . ' }}', $value, $template);
         }
 
         // Mail
@@ -87,16 +103,15 @@ class Notifier
     public function notifyUp($url)
     {
         $vars = array(
-            'subject' => '[Website up] '.$url.' is reachable again.',
-            'title' => $url.' is up',
-            'message'=> $url.' is reachable again at '.date('Y-m-d H:i').'.'
+            'subject' => '[Website up] ' . $url . ' is reachable again.',
+            'title' => $url . ' is up',
+            'message' => $url . ' is reachable again at ' . date('Y-m-d H:i') . '.',
         );
 
         $template = $this->getEmailTemplate();
         foreach ($vars as $key => $value) {
-            $template = str_replace('{{ '.$key.' }}', $value, $template);
+            $template = str_replace('{{ ' . $key . ' }}', $value, $template);
         }
-
 
         // Mail
         $this->mailer->send($this->getSwiftMessage($vars, $template));
@@ -110,18 +125,18 @@ class Notifier
 
                 // Set the From address with an associative array
                 ->setFrom(array($this->CONF['sender'] => 'RZ Monitor'))
-                // Set the To addresses with an associative array
-                ->setTo($this->CONF['mail'])
-                // Give it a body
-                ->setBody($body, 'text/html')
-                // Indicate "High" priority
-                ->setPriority(1);
-        ;
-        return $message;
-    }
+                                                                  // Set the To addresses with an associative array
+                                                                  ->setTo($this->CONF['mail'])
+                      // Give it a body
+                                     ->setBody($body, 'text/html')
+                                     // Indicate "High" priority
+                                     ->setPriority(1);
 
-    public function getEmailTemplate()
+                                     return $message;
+                                 }
+
+                                 public function getEmailTemplate()
     {
-        return file_get_contents(BASE_FOLDER.'/resources/emails/alert.html');
-    }
-}
+                                     return file_get_contents(BASE_FOLDER . '/resources/emails/alert.html');
+                                 }
+                             }
