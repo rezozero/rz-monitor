@@ -20,46 +20,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @file CLIMonitor.php
+ * @file AbstractDataValidator.php
  * @author Ambroise Maupate
  */
-namespace rezozero\monitor\kernel;
+namespace rezozero\monitor\validator;
 
-use Psr\Log\LoggerInterface;
-use \rezozero\monitor\engine\Collector;
-use \rezozero\monitor\engine\PersistedData;
-use \rezozero\monitor\view;
-use \rezozero\monitor\view\CLIOutput;
-
-class CLIMonitor
+abstract class AbstractDataValidator implements ValidatorInterface
 {
-    private $output;
-    private $colors;
-    private $collector;
-    private $data;
+    protected $data;
 
-    public function __construct(&$CONF, PersistedData &$data, LoggerInterface $log)
+    public function __construct($data)
     {
-        $this->output = new view\CLIOutput();
-        $this->colors = new view\Colors();
-        $this->data = $data;
-
-        CLIOutput::echoAT(
-            0,
-            0,
-            $this->colors->getColoredString(
-                'Please wait for RZ Monitor to crawl your websites',
-                'white',
-                'black'
-            )
-        );
-
-        $this->collector = new Collector('sites.json', $CONF, $this->data, $log);
-
-        $this->output->parseArray($this->collector->getStatuses());
-        system("clear");
-        echo $this->output->output();
-
-        $this->output->flushContent();
+        $this->data = trim($data);
     }
 }

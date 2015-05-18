@@ -20,46 +20,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @file CLIMonitor.php
+ * @file UncaughtExceptionValidator.php
  * @author Ambroise Maupate
  */
-namespace rezozero\monitor\kernel;
+namespace rezozero\monitor\validator;
 
-use Psr\Log\LoggerInterface;
-use \rezozero\monitor\engine\Collector;
-use \rezozero\monitor\engine\PersistedData;
-use \rezozero\monitor\view;
-use \rezozero\monitor\view\CLIOutput;
+use rezozero\monitor\exception\WebsiteDownException;
 
-class CLIMonitor
+class UncaughtExceptionValidator extends AbstractDataValidator
 {
-    private $output;
-    private $colors;
-    private $collector;
-    private $data;
-
-    public function __construct(&$CONF, PersistedData &$data, LoggerInterface $log)
+    /**
+     * @return void
+     * @throws WebsiteDownException
+     */
+    public function validate()
     {
-        $this->output = new view\CLIOutput();
-        $this->colors = new view\Colors();
-        $this->data = $data;
-
-        CLIOutput::echoAT(
-            0,
-            0,
-            $this->colors->getColoredString(
-                'Please wait for RZ Monitor to crawl your websites',
-                'white',
-                'black'
-            )
-        );
-
-        $this->collector = new Collector('sites.json', $CONF, $this->data, $log);
-
-        $this->output->parseArray($this->collector->getStatuses());
-        system("clear");
-        echo $this->output->output();
-
-        $this->output->flushContent();
+        if (preg_match("/Fatal error\: Uncaught exception/", $this->data) > 0) {
+            throw new WebsiteDownException('An exception has been thrown and has not been catched');
+        }
     }
 }
