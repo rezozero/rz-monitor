@@ -169,7 +169,6 @@ class Crawler
             curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($this->curlHandle, CURLOPT_VERBOSE, false);
-            curl_setopt($this->curlHandle, CURLOPT_SSLVERSION, 3);
             curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 10);
