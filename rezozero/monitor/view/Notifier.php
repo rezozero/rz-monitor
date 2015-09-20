@@ -119,24 +119,28 @@ class Notifier
 
     private function getSwiftMessage(&$vars, $body)
     {
-        // Create the message
-        $message = \Swift_Message::newInstance();
-        $message->setSubject($vars['subject'])
+        if (!empty($this->CONF['mail'])) {
+            $sender = isset($this->CONF['sender']) ? $this->CONF['sender'] : "noreply@rz-monitor.com";
+            // Create the message
+            $message = \Swift_Message::newInstance();
+            $message->setSubject($vars['subject'])
+            // Set the From address with an associative array
+                ->setFrom(array($sender => 'RZ Monitor'))
+            // Set the To addresses with an associative array
+                ->setTo($this->CONF['mail'])
+            // Give it a body
+                ->setBody($body, 'text/html')
+            // Indicate "High" priority
+                ->setPriority(1);
 
-                // Set the From address with an associative array
-                ->setFrom(array($this->CONF['sender'] => 'RZ Monitor'))
-                                                                  // Set the To addresses with an associative array
-                                                                  ->setTo($this->CONF['mail'])
-                      // Give it a body
-                                     ->setBody($body, 'text/html')
-                                     // Indicate "High" priority
-                                     ->setPriority(1);
+            return $message;
+        } else {
+            return null;
+        }
+    }
 
-                                     return $message;
-                                 }
-
-                                 public function getEmailTemplate()
+    public function getEmailTemplate()
     {
-                                     return file_get_contents(BASE_FOLDER . '/resources/emails/alert.html');
-                                 }
-                             }
+        return file_get_contents(BASE_FOLDER . '/resources/emails/alert.html');
+    }
+}
