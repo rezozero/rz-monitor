@@ -53,8 +53,8 @@ class HTMLOutput
     public function header()
     {
         ob_start();
-        ?>
-<!DOCTYPE html>
+
+        ?><!DOCTYPE html>
 <html>
 <head>
 	<title>RZ Monitor</title>
@@ -79,19 +79,18 @@ class HTMLOutput
 	<script type="text/javascript" src="./js/less-1.4.1.min.js"></script>
 </head>
 <body>
-	<h1>RZ Monitor</h1>
-		<?php
-$this->header = ob_get_clean();
+	<h1>RZ Monitor</h1><?php
+
+        $this->header = ob_get_clean();
         return $this->header;
     }
 
     public function footer()
     {
         ob_start();
-        ?>
-</body>
-</html>
-		<?php
+
+        ?></body>
+</html><?php
 
         $this->footer = ob_get_clean();
         return $this->footer;
@@ -119,7 +118,6 @@ $this->header = ob_get_clean();
                     continue;
                 }
                 if ($ckey > 0) {
-
                     $additionalClass = '';
 
                     switch ($key) {
@@ -157,17 +155,11 @@ $this->header = ob_get_clean();
                             $value = str_replace(".eu", "", $value);
                             $value = str_replace(".fr", "", $value);
                             break;
-
-                        default:
-                            # code...
-                            break;
                     }
-
                     $this->content("\n\t<td class='" . $key . $additionalClass . "'>" . $value . "</td>");
                 } else {
                     $this->content("\n\t<th class='" . $key . "'>" . $value . "</th>");
                 }
-
             }
             $this->content("\n</tr>");
         }

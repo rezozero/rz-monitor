@@ -112,7 +112,9 @@ abstract class Router
         /*
          * If users are set, need auth
          */
-        if (isset($CONF['users']) && is_array($CONF['users'])) {
+        if (isset($CONF['users']) &&
+            is_array($CONF['users']) &&
+            count($CONF['users']) > 0) {
 
             if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
                 header('HTTP/1.1 401 Unauthorized');
